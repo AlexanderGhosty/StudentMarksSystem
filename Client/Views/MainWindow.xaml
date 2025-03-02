@@ -1,0 +1,37 @@
+﻿<Window x:Class="Client.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Client.Views"
+        xmlns:vm="clr-namespace:Client.ViewModels"
+        Title="Система учета обучающихся" Height="450" Width="800">
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Вертикальное меню -->
+        <StackPanel Grid.Column="0" Background="#EEE" VerticalAlignment="Top" Margin="5">
+            <Button Content="Панель админа"
+                    Margin="5"
+                    Command="{Binding OpenAdminPanelCommand}"
+                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+            <Button Content="Предметы" Margin="5"
+                    Command="{Binding OpenSubjectsCommand}"/>
+
+            <Button Content="Выход" Margin="5"
+                    Command="{Binding LogoutCommand}" />
+        </StackPanel>
+
+        <!-- Область контента -->
+        <ContentControl Grid.Column="1" Margin="5"
+                        Content="{Binding CurrentViewModel}">
+            <!-- Здесь обычно через DataTemplate связываются VM -> View -->
+        </ContentControl>
+    </Grid>
+</Window>
