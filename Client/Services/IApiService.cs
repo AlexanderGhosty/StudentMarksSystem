@@ -15,6 +15,9 @@ namespace Client.Services
         Task<CreateSubjectResponse> CreateSubjectAsync(Subject subject);
         Task<BasicResponse> DeleteSubjectAsync(int subjectId);
 
-        // И т.д. по необходимости
+
+        Task<GradesResponse> GetGradesBySubjectAsync(int subjectId);
+        Task<GradesResponse> GetGradesByStudentAsync(int studentId);
+        Task<CreateGradeResponse> AddOrUpdateGradeAsync(Grade grade);
     }
 }

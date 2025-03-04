@@ -7,7 +7,7 @@ using Client.Models;
 using Client.Services;
 
 
-namespace EducationApp.Services
+namespace Client.Services
 {
     public class ApiService : IApiService
     {
@@ -169,5 +169,81 @@ namespace EducationApp.Services
             }
             return res;
         }
+
+        public async Task<GradesResponse> GetGradesBySubjectAsync(int subjectId)
+        {
+            var res = new GradesResponse();
+            var response = await _client.GetAsync($"/grades?subject={subjectId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var grades = JsonConvert.DeserializeObject<List<Grade>>(json);
+                res.IsSuccess = true;
+                res.Grades = grades;
+            }
+            else
+            {
+                res.IsSuccess = false;
+                res.ErrorMessage = $"Ошибка при получении оценок по предмету {subjectId}";
+            }
+            return res;
+        }
+
+        public async Task<GradesResponse> GetGradesByStudentAsync(int studentId)
+        {
+            var res = new GradesResponse();
+            var response = await _client.GetAsync($"/grades?student={studentId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var grades = JsonConvert.DeserializeObject<List<Grade>>(json);
+                res.IsSuccess = true;
+                res.Grades = grades;
+            }
+            else
+            {
+                res.IsSuccess = false;
+                res.ErrorMessage = $"Ошибка при получении оценок студента {studentId}";
+            }
+            return res;
+        }
+
+        public async Task<CreateGradeResponse> AddOrUpdateGradeAsync(Grade grade)
+        {
+            // Предположим, сервер ждёт JSON вида:
+            // { "student_id": <int>, "subject_id": <int>, "grade": <int> }
+            // для POST /grades (upsert).
+
+            var requestObj = new
+            {
+                student_id = grade.StudentId,
+                subject_id = grade.SubjectId,
+                grade = grade.GradeValue
+            };
+
+            var json = JsonConvert.SerializeObject(requestObj);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _client.PostAsync("/grades", content);
+
+            var result = new CreateGradeResponse();
+            if (response.IsSuccessStatusCode)
+            {
+                // Допустим, сервер возвращает сохранённый объект
+                // { "student_id":..., "student_name":..., "subject_id":..., "subject_title":..., "grade":... }
+                // Приведём к нашей модели Grade
+                var respJson = await response.Content.ReadAsStringAsync();
+                var updatedGrade = JsonConvert.DeserializeObject<Grade>(respJson);
+
+                result.IsSuccess = true;
+                result.CreatedGrade = updatedGrade;
+            }
+            else
+            {
+                result.IsSuccess = false;
+                result.ErrorMessage = "Ошибка при добавлении/обновлении оценки";
+            }
+            return result;
+        }
+
     }
 }

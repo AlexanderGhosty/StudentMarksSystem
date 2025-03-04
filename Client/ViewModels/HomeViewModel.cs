@@ -8,6 +8,9 @@ namespace Client.ViewModels
 {
     public class HomeViewModel : BaseViewModel
     {
-        // Можно просто показать приветствие, инфо о пользователе и т.д.
+        
     }
+    // Напиши вывод в консоль "Привет мир!"
+
+
 }

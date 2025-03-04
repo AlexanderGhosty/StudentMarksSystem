@@ -25,5 +25,38 @@ namespace Client.Services
         public bool IsSuccess { get; set; }
         public string ErrorMessage { get; set; }
         public Client.Models.User CreatedUser { get; set; }
-    }   
+    }
+
+    public class BasicResponse
+    {
+        public bool IsSuccess { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+
+    public class SubjectsResponse
+    {
+        public bool IsSuccess { get; set; }
+        public string ErrorMessage { get; set; }
+        public System.Collections.Generic.List<Client.Models.Subject> Subjects { get; set; }
+    }
+
+    public class CreateSubjectResponse
+    {
+        public bool IsSuccess { get; set; }
+        public string ErrorMessage { get; set; }
+        public Client.Models.Subject CreatedSubject { get; set; }
+    }
+    public class GradesResponse
+    {
+        public bool IsSuccess { get; set; }
+        public string ErrorMessage { get; set; }
+        public List<Client.Models.Grade> Grades { get; set; }
+    }
+
+    public class CreateGradeResponse
+    {
+        public bool IsSuccess { get; set; }
+        public string ErrorMessage { get; set; }
+        public Client.Models.Grade CreatedGrade { get; set; }
+    }
 }

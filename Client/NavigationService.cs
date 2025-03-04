@@ -1,15 +1,20 @@
-﻿namespace Client
+﻿// NavigationService.cs
+using Client.Views;
+
+namespace Client
 {
     public class NavigationService
     {
         public void ShowMainWindow()
         {
-            // Закрыть окно авторизации, открыть MainWindow
-            var mainWindow = new Views.MainWindow();
+            var mainWindow = new MainWindow();
             mainWindow.Show();
+        }
 
-            // Можно найти и закрыть LoginView
-            // ...
+        public void ShowLoginWindow()
+        {
+            var loginWindow = new LoginView();
+            loginWindow.Show();
         }
     }
 }

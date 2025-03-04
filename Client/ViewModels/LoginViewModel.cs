@@ -53,6 +53,10 @@ namespace Client.ViewModels
             LoginCommand = new RelayCommand(async _ => await LoginAsync());
         }
 
+        public LoginViewModel() : this(new Client.Services.ApiService(), new Client.NavigationService())
+        {
+        }
+
         private async System.Threading.Tasks.Task LoginAsync()
         {
             ErrorMessage = string.Empty;
