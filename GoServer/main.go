@@ -25,7 +25,7 @@ func main() {
 
     // Защищённая группа
     authorized := r.Group("/")
-    authorized.Use(middleware.AuthMiddleware(database)) // Простая мидлварь
+    authorized.Use(middleware.AuthMiddleware()) // Простая мидлварь
     {
         authorized.GET("/users", func(c *gin.Context) { handlers.GetAllUsers(c, database) })
         authorized.POST("/users", func(c *gin.Context) { handlers.CreateUser(c, database) })
@@ -39,6 +39,7 @@ func main() {
 
         authorized.GET("/grades", func(c *gin.Context) { handlers.GetGrades(c, database) })
         authorized.POST("/grades", func(c *gin.Context) { handlers.AddOrUpdateGrade(c, database) })
+        authorized.DELETE("/grades/:id", func(c *gin.Context) { handlers.DeleteGrade(c, database) })
     }
 
     r.Run(":8080")

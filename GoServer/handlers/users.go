@@ -96,9 +96,28 @@ func UpdateUser(c *gin.Context, database *sql.DB) {
 }
 
 func DeleteUser(c *gin.Context, database *sql.DB) {
-    userId := c.Param("id")
-    // Преобразуем в int
-    // ...
-    // Удаляем
-    // ...
+    idStr := c.Param("id")
+    userID, err := strconv.Atoi(idStr)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+        return
+    }
+
+    // только администратор может удалять пользователей:
+    // Проверяем роль, которую мы извлекли из JWT.
+    userRoleVal, exists := c.Get("role") // "role" мы будем класть в контекст в JWT-мидлваре
+    if !exists || userRoleVal.(string) != "admin" {
+        c.JSON(http.StatusForbidden, gin.H{"error": "only admin can delete users"})
+        return
+    }
+
+    // Вызываем функцию из db
+    err = db.DeleteUser(database, userID)
+    if err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"success": true})
 }
+

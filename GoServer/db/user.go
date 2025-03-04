@@ -4,6 +4,7 @@ import (
     "database/sql"
     "GoServer/models"
 	"fmt"
+    "strings"
 )
 
 func GetUsers(db *sql.DB) ([]models.User, error) {
@@ -36,9 +37,25 @@ func CreateUser(db *sql.DB, user models.User, passwordHash string) (int, error) 
 }
 
 func DeleteUser(db *sql.DB, userId int) error {
-    _, err := db.Exec(`DELETE FROM Users WHERE id=$1`, userId)
-    return err
+    // если нет каскадного удаления оценок
+    //
+    // _, err := db.Exec(`DELETE FROM Grades WHERE student_id=$1`, userId)
+    // if err != nil {
+    //     return err
+    // }
+
+    result, err := db.Exec(`DELETE FROM Users WHERE id=$1`, userId)
+    if err != nil {
+        return err
+    }
+
+    rowsAffected, _ := result.RowsAffected()
+    if rowsAffected == 0 {
+        return fmt.Errorf("no user with id=%d found", userId)
+    }
+    return nil
 }
+
 
 func UpdateUser(db *sql.DB, user models.User) error {
     // Собираем динамический UPDATE, чтобы обновлять только те поля, которые пришли непустыми.
@@ -83,5 +100,7 @@ func UpdateUser(db *sql.DB, user models.User) error {
     _, err := db.Exec(query, params...)
     return err
 }
+
+
 
 // И другие функции: GetUserByLogin и т.д.

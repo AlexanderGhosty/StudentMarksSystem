@@ -3,6 +3,7 @@ package db
 import (
     "database/sql"
     "GoServer/models"
+	"fmt"
 )
 
 func AddOrUpdateGrade(db *sql.DB, grade models.Grade) error {
@@ -18,51 +19,59 @@ func AddOrUpdateGrade(db *sql.DB, grade models.Grade) error {
 }
 
 func GetGradesBySubject(db *sql.DB, subjectId int) ([]models.Grade, error) {
-    rows, err := db.Query(`
-        SELECT g.id, g.student_id, u.name, g.grade
-        FROM Grades g
-        JOIN Users u ON g.student_id = u.id
-        WHERE g.subject_id=$1
+	// Извлекаем только те поля, которые есть в модели Grade
+	rows, err := db.Query(`
+        SELECT id, student_id, subject_id, grade
+        FROM Grades
+        WHERE subject_id = $1
     `, subjectId)
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-    var grades []models.Grade
-    for rows.Next() {
-        var gr models.Grade
-        var studentName string
-        if err := rows.Scan(&gr.Id, &gr.StudentId, &studentName, &gr.GradeValue); err != nil {
-            return nil, err
-        }
-        gr.StudentName = studentName
-        grades = append(grades, gr)
-    }
-    return grades, nil
+	var grades []models.Grade
+	for rows.Next() {
+		var gr models.Grade
+		if err := rows.Scan(&gr.Id, &gr.StudentId, &gr.SubjectId, &gr.GradeValue); err != nil {
+			return nil, err
+		}
+		grades = append(grades, gr)
+	}
+	return grades, nil
 }
 
 func GetGradesByStudent(db *sql.DB, studentId int) ([]models.Grade, error) {
-    rows, err := db.Query(`
-        SELECT g.id, g.subject_id, s.title, g.grade
-        FROM Grades g
-        JOIN Subjects s ON g.subject_id = s.id
-        WHERE g.student_id=$1
+	// Извлекаем данные оценки для указанного студента
+	rows, err := db.Query(`
+        SELECT id, student_id, subject_id, grade
+        FROM Grades
+        WHERE student_id = $1
     `, studentId)
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-    var grades []models.Grade
-    for rows.Next() {
-        var gr models.Grade
-        var subjectTitle string
-        if err := rows.Scan(&gr.Id, &gr.SubjectId, &subjectTitle, &gr.GradeValue); err != nil {
-            return nil, err
-        }
-        gr.SubjectTitle = subjectTitle
-        grades = append(grades, gr)
+	var grades []models.Grade
+	for rows.Next() {
+		var gr models.Grade
+		if err := rows.Scan(&gr.Id, &gr.StudentId, &gr.SubjectId, &gr.GradeValue); err != nil {
+			return nil, err
+		}
+		grades = append(grades, gr)
+	}
+	return grades, nil
+}
+
+func DeleteGrade(db *sql.DB, gradeId int) error {
+    result, err := db.Exec(`DELETE FROM Grades WHERE id=$1`, gradeId)
+    if err != nil {
+        return err
     }
-    return grades, nil
+    rowsAffected, _ := result.RowsAffected()
+    if rowsAffected == 0 {
+        return fmt.Errorf("grade with id=%d not found", gradeId)
+    }
+    return nil
 }
