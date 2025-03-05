@@ -6,6 +6,7 @@ namespace Client.Services
     public interface IApiService
     {
         Task<LoginResponse> LoginAsync(string login, string password);
+        void SetToken(string token);
 
         Task<UsersResponse> GetAllUsersAsync();
         Task<CreateUserResponse> CreateUserAsync(User user);

@@ -11,6 +11,8 @@ namespace Client.Services
         public bool IsSuccess { get; set; }
         public string ErrorMessage { get; set; }
         public Models.User User { get; set; }
+
+        public string Token { get; set; }
     }
 
     public class UsersResponse

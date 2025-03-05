@@ -65,7 +65,11 @@ namespace Client.ViewModels
             {
                 // Сохраняем текущего пользователя
                 GlobalState.CurrentUser = response.User;
-                // Переходим к основному окну
+
+                // Устанавливаем токен в ApiService
+                _apiService.SetToken(response.Token);
+
+                // Открываем основное окно
                 _navigation.ShowMainWindow();
             }
             else
@@ -73,5 +77,6 @@ namespace Client.ViewModels
                 ErrorMessage = response.ErrorMessage;
             }
         }
+
     }
 }

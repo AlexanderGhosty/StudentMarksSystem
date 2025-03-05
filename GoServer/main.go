@@ -11,7 +11,7 @@ import (
 
 func main() {
     // Подключаемся к БД
-    database, err := db.OpenDB("host=localhost port=5432 user=postgres password=postgres dbname=marks sslmode=disable")
+    database, err := db.OpenDB("host=localhost port=5432 user=postgres password=postgres dbname=postgres sslmode=disable")
     if err != nil {
         log.Fatalf("Cannot open DB: %v", err)
     }
@@ -25,7 +25,7 @@ func main() {
 
     // Защищённая группа
     authorized := r.Group("/")
-    authorized.Use(middleware.AuthMiddleware()) // Простая мидлварь
+    authorized.Use(middleware.AuthMiddleware())
     {
         authorized.GET("/users", func(c *gin.Context) { handlers.GetAllUsers(c, database) })
         authorized.POST("/users", func(c *gin.Context) { handlers.CreateUser(c, database) })

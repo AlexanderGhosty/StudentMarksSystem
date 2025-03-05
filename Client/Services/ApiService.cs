@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Client.Models;
 using Client.Services;
+using System.Net.Http.Headers;
 
 
 namespace Client.Services
@@ -20,6 +21,19 @@ namespace Client.Services
             _client.BaseAddress = new Uri("http://localhost:8080");
         }
 
+        public void SetToken(string token)
+        {
+            if (!string.IsNullOrEmpty(token))
+            {
+                _client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+            }
+            else
+            {
+                _client.DefaultRequestHeaders.Authorization = null;
+            }
+        }
+
         public async Task<LoginResponse> LoginAsync(string login, string password)
         {
             var data = new { login, password };
@@ -31,12 +45,17 @@ namespace Client.Services
             if (response.IsSuccessStatusCode)
             {
                 var respJson = await response.Content.ReadAsStringAsync();
-                // Предположим, что сервер возвращает объект { success, errorMessage, user { ... } }
+                // Сервер возвращает { success, token, errorMessage, user { ... } }
                 dynamic obj = JsonConvert.DeserializeObject(respJson);
                 result.IsSuccess = (bool)obj.success;
                 result.ErrorMessage = (string)obj.errorMessage;
+
                 if (result.IsSuccess)
                 {
+                    // Считаем токен
+                    string token = (string)obj.token;
+                    result.Token = token;
+
                     // user
                     var userObj = obj.user;
                     var user = new User
@@ -56,6 +75,7 @@ namespace Client.Services
             }
             return result;
         }
+
 
         public async Task<UsersResponse> GetAllUsersAsync()
         {
