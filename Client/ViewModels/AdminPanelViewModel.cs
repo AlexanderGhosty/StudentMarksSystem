@@ -3,6 +3,7 @@ using System.Windows.Input;
 using Client.Models;
 using Client.Services;
 using Client.Views;
+using System.Windows;
 
 
 namespace Client.ViewModels
@@ -60,37 +61,43 @@ namespace Client.ViewModels
 
         private async Task AddUserAsync()
         {
-            // Открываем диалоговое окно добавления
-            var dialog = new AddUserDialog();
-            var dialogVm = new AddUserDialogViewModel();
-            dialog.DataContext = dialogVm;
-
-            // Модально открываем окно
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
-            bool? result = dialog.ShowDialog();
-
-            // Если пользователь нажал "Сохранить" в диалоге
-            if (result == true && dialogVm.DialogResultOk)
+            try
             {
-                // Собираем данные нового пользователя
-                var newUser = new User
-                {
-                    Name = dialogVm.UserName,
-                    Login = dialogVm.Login,
-                    Password = dialogVm.Password,
-                    Role = dialogVm.SelectedRole.Substring(38)
-                }
-            ;
+                // Открываем диалоговое окно добавления
+                var dialog = new AddUserDialog();
+                var dialogVm = new AddUserDialogViewModel();
+                dialog.DataContext = dialogVm;
+                // dialog.Owner = Application.Current.MainWindow;
 
-                // Отправляем POST /users
-                var createResult = await _apiService.CreateUserAsync(newUser);
-                if (createResult.IsSuccess && createResult.CreatedUser != null)
+                bool? result = dialog.ShowDialog();
+
+                if (result == true && dialogVm.DialogResultOk)
                 {
-                    // Добавляем в локальный список, чтобы сразу видеть изменения
-                    Users.Add(createResult.CreatedUser);
+                    var newUser = new User
+                    {
+                        Name = dialogVm.UserName,
+                        Login = dialogVm.Login,
+                        Password = dialogVm.Password,
+                        Role = dialogVm.SelectedRole
+                    };
+
+                    // Отправляем POST /users
+                    var createResult = await _apiService.CreateUserAsync(newUser);
+                    if (createResult.IsSuccess && createResult.CreatedUser != null)
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            Users.Add(createResult.CreatedUser);
+                        });
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при добавлении пользователя: " + ex.Message);
+            }
         }
+
 
         private async System.Threading.Tasks.Task DeleteUserAsync()
         {

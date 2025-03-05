@@ -60,20 +60,26 @@ namespace Client.ViewModels
 
         
 
-        private void Save()
+void Save()
         {
-            // Простая проверка на непустые поля
-            if (string.IsNullOrWhiteSpace(UserName) ||
-                string.IsNullOrWhiteSpace(Login) ||
-                string.IsNullOrWhiteSpace(Password))
+            try
             {
-                ErrorMessage = "Все поля (Имя, Логин, Пароль) должны быть заполнены.";
-                return;
-            }
+                if (string.IsNullOrWhiteSpace(UserName) ||
+                    string.IsNullOrWhiteSpace(Login) ||
+                    string.IsNullOrWhiteSpace(Password))
+                {
+                    ErrorMessage = "Все поля (Имя, Логин, Пароль) должны быть заполнены.";
+                    return;
+                }
 
-            // Успех: помечаем, что диалог завершается с «OK»
-            DialogResultOk = true;
-            OnRequestClose();
+                DialogResultOk = true;
+                OnRequestClose();
+            }
+            catch (Exception ex)
+            {
+                // Можно добавить логирование
+                ErrorMessage = $"Произошла ошибка: {ex.Message}";
+            }
         }
 
         private void Cancel()

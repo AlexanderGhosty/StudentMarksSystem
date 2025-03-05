@@ -34,7 +34,7 @@
         <!-- Поле "Роль" -->
         <TextBlock Grid.Row="3" Text="Роль:" VerticalAlignment="Center"/>
         <ComboBox Grid.Row="3" Margin="60,0,0,0" Width="200" 
-                  SelectedItem="{Binding SelectedRole}">
+                  SelectedValuePath="Content" SelectedValue="{Binding SelectedRole, Mode=TwoWay}">
             <ComboBoxItem Content="admin"/>
             <ComboBoxItem Content="teacher"/>
             <ComboBoxItem Content="student"/>
