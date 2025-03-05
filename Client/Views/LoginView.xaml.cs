@@ -9,6 +9,15 @@ namespace Client.Views
         public LoginView()
         {
             InitializeComponent();
+
+            // Подписка на событие из ViewModel
+            this.Loaded += (s, e) =>
+            {
+                if (DataContext is LoginViewModel vm)
+                {
+                    vm.RequestClose += (sender, args) => this.Close();
+                }
+            };
         }
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)

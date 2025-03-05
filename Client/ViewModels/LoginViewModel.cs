@@ -57,6 +57,9 @@ namespace Client.ViewModels
         {
         }
 
+        // Событие, которое вызывает закрытие окна
+        public event EventHandler RequestClose;
+
         private async System.Threading.Tasks.Task LoginAsync()
         {
             ErrorMessage = string.Empty;
@@ -71,6 +74,9 @@ namespace Client.ViewModels
 
                 // Открываем основное окно
                 _navigation.ShowMainWindow();
+
+                // Генерируем событие, чтобы закрыть LoginView
+                RequestClose?.Invoke(this, EventArgs.Empty);
             }
             else
             {
