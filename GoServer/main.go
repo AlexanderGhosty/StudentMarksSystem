@@ -1,13 +1,44 @@
 package main
 
 import (
-    "log"
-    "github.com/gin-gonic/gin"
-    "GoServer/db"
-    "GoServer/handlers"
-    "GoServer/middleware"
-    _ "github.com/lib/pq"
+	"database/sql"
+	"fmt"
+	"log"
+
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
+	"GoServer/db"
+	"GoServer/handlers"
+	"GoServer/middleware"
+	_ "github.com/lib/pq"
 )
+
+// bootstrapAdmin проверяет, существует ли пользователь с ролью "admin" и, если нет, создаёт его.
+func bootstrapAdmin(database *sql.DB) {
+	var exists bool
+	err := database.QueryRow(`SELECT EXISTS (SELECT 1 FROM Users WHERE role = 'admin')`).Scan(&exists)
+	if err != nil {
+		log.Fatalf("Ошибка проверки наличия администратора: %v", err)
+	}
+	if !exists {
+		// Хешируем пароль "admin"
+		hashed, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+		if err != nil {
+			log.Fatalf("Ошибка хеширования пароля: %v", err)
+		}
+		var adminId int
+		err = database.QueryRow(`
+			INSERT INTO Users (name, login, password_hash, role)
+			VALUES ($1, $2, $3, $4) RETURNING id
+		`, "alex", "admin", string(hashed), "admin").Scan(&adminId)
+		if err != nil {
+			log.Fatalf("Ошибка создания администратора: %v", err)
+		}
+		fmt.Printf("Создан администратор по умолчанию с id %d\n", adminId)
+	} else {
+		fmt.Println("Администратор уже существует")
+	}
+}
 
 func main() {
     // Подключаемся к БД
@@ -15,6 +46,9 @@ func main() {
     if err != nil {
         log.Fatalf("Cannot open DB: %v", err)
     }
+
+    // Выполняем bootstrap‑логику для создания администратора, если его нет
+	bootstrapAdmin(database)
 
     r := gin.Default()
 
