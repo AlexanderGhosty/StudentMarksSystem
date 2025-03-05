@@ -2,6 +2,8 @@
 using System.Windows.Input;
 using Client.Models;
 using Client.Services;
+using Client.Views;
+
 
 namespace Client.ViewModels
 {
@@ -21,7 +23,10 @@ namespace Client.ViewModels
             }
         }
 
+
+        // Команды
         public ICommand LoadUsersCommand { get; }
+        public ICommand RefreshUsersCommand { get; }
         public ICommand AddUserCommand { get; }
         public ICommand DeleteUserCommand { get; }
 
@@ -30,11 +35,15 @@ namespace Client.ViewModels
         public AdminPanelViewModel(IApiService apiService)
         {
             _apiService = apiService;
+
             LoadUsersCommand = new RelayCommand(async _ => await LoadUsersAsync());
+            // "Обновить" будет повторно вызывать тот же метод
+            RefreshUsersCommand = new RelayCommand(async _ => await LoadUsersAsync());
+
             AddUserCommand = new RelayCommand(async _ => await AddUserAsync());
             DeleteUserCommand = new RelayCommand(async _ => await DeleteUserAsync());
 
-            // Загрузим при инициализации
+            // Загрузим пользователей при инициализации
             LoadUsersCommand.Execute(null);
         }
 
@@ -49,20 +58,37 @@ namespace Client.ViewModels
             }
         }
 
-        private async System.Threading.Tasks.Task AddUserAsync()
+        private async Task AddUserAsync()
         {
-            // В реальном приложении открываем диалог, получаем данные
-            var newUser = new User
+            // Открываем диалоговое окно добавления
+            var dialog = new AddUserDialog();
+            var dialogVm = new AddUserDialogViewModel();
+            dialog.DataContext = dialogVm;
+
+            // Модально открываем окно
+            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            bool? result = dialog.ShowDialog();
+
+            // Если пользователь нажал "Сохранить" в диалоге
+            if (result == true && dialogVm.DialogResultOk)
             {
-                Name = "Новый пользователь",
-                Login = "new_login",
-                Password = "1234",
-                Role = "teacher"
-            };
-            var result = await _apiService.CreateUserAsync(newUser);
-            if (result.IsSuccess && result.CreatedUser != null)
-            {
-                Users.Add(result.CreatedUser);
+                // Собираем данные нового пользователя
+                var newUser = new User
+                {
+                    Name = dialogVm.UserName,
+                    Login = dialogVm.Login,
+                    Password = dialogVm.Password,
+                    Role = dialogVm.SelectedRole.Substring(38)
+                }
+            ;
+
+                // Отправляем POST /users
+                var createResult = await _apiService.CreateUserAsync(newUser);
+                if (createResult.IsSuccess && createResult.CreatedUser != null)
+                {
+                    // Добавляем в локальный список, чтобы сразу видеть изменения
+                    Users.Add(createResult.CreatedUser);
+                }
             }
         }
 

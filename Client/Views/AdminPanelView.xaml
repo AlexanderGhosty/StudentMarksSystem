@@ -2,34 +2,41 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:Client.ViewModels"
-             xmlns:models="clr-namespace:Client.Models"
-             Height="Auto" Width="Auto">
-    <Grid Margin="5">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+             x:Name="AdminPanelControl">
 
-        <StackPanel Orientation="Horizontal">
-            <Button Content="Загрузить пользователей"
-                    Command="{Binding LoadUsersCommand}" Margin="5"/>
-            <Button Content="Добавить пользователя"
-                    Command="{Binding AddUserCommand}" Margin="5"/>
-            <Button Content="Удалить пользователя"
-                    Command="{Binding DeleteUserCommand}" Margin="5"/>
+    <Grid Margin="10">
+        <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+
+            <!-- Кнопка "Обновить" для повторной загрузки пользователей с сервера -->
+            <Button Content="Обновить"
+                    Command="{Binding RefreshUsersCommand}"
+                    Margin="0,0,0,10"
+                    Width="100"
+                    HorizontalAlignment="Left"/>
+
+            <!-- Таблица со списком пользователей -->
+            <DataGrid ItemsSource="{Binding Users}"
+                      SelectedItem="{Binding SelectedUser}"
+                      AutoGenerateColumns="False"
+                      Height="200"
+                      Margin="0,0,0,10">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="Auto"/>
+                    <DataGridTextColumn Header="Имя" Binding="{Binding Name}" Width="*"/>
+                    <DataGridTextColumn Header="Логин" Binding="{Binding Login}" Width="*"/>
+                    <DataGridTextColumn Header="Роль" Binding="{Binding Role}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Кнопки "Добавить" и "Удалить" -->
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Добавить пользователя"
+                        Command="{Binding AddUserCommand}"
+                        Margin="0,0,10,0"/>
+                <Button Content="Удалить"
+                        Command="{Binding DeleteUserCommand}"/>
+            </StackPanel>
+
         </StackPanel>
-
-        <ListView Grid.Row="1"
-                  ItemsSource="{Binding Users}"
-                  SelectedItem="{Binding SelectedUser}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Id" DisplayMemberBinding="{Binding Id}" />
-                    <GridViewColumn Header="Имя" DisplayMemberBinding="{Binding Name}" />
-                    <GridViewColumn Header="Логин" DisplayMemberBinding="{Binding Login}" />
-                    <GridViewColumn Header="Роль" DisplayMemberBinding="{Binding Role}" />
-                </GridView>
-            </ListView.View>
-        </ListView>
     </Grid>
 </UserControl>

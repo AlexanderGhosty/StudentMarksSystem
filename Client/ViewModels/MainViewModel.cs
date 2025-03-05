@@ -36,6 +36,11 @@ namespace Client.ViewModels
         {
             _apiService = apiService;
 
+            if (!string.IsNullOrEmpty(GlobalState.Token))
+            {
+                _apiService.SetToken(GlobalState.Token);
+            }
+
             OpenAdminPanelCommand = new RelayCommand(_ => OpenAdminPanel());
             OpenSubjectsCommand = new RelayCommand(_ => OpenSubjects());
             LogoutCommand = new RelayCommand(_ => Logout());
@@ -49,7 +54,14 @@ namespace Client.ViewModels
         private void OpenAdminPanel()
         {
             if (IsAdmin)
+            {
+                System.Diagnostics.Debug.WriteLine("Открываем панель администратора");
                 CurrentViewModel = new AdminPanelViewModel(_apiService);
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Пользователь не является администратором");
+            }
         }
 
         private void OpenSubjects()
@@ -64,7 +76,7 @@ namespace Client.ViewModels
 
         private void Logout()
         {
-            GlobalState.CurrentUser = null;
+            GlobalState.Clear();
             // Закрыть текущее окно, открыть заново окно авторизации
             // Или вызвать другой метод навигации
         }

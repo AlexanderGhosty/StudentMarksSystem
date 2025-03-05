@@ -7,6 +7,6 @@ namespace Client.Models
         public string Name { get; set; } = string.Empty;
         public string Login { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty; // Только при создании/редактировании
-        public string Role { get; set; } = "student";        // admin/teacher/student
+        public string Role { get; set; } = "student";        // admin/teacher/student 
     }
 }

@@ -66,8 +66,9 @@ namespace Client.ViewModels
             var response = await _apiService.LoginAsync(Login, Password);
             if (response.IsSuccess)
             {
-                // Сохраняем текущего пользователя
+                // Запоминаем текущего пользователя в GlobalState
                 GlobalState.CurrentUser = response.User;
+                GlobalState.Token = response.Token;
 
                 // Устанавливаем токен в ApiService
                 _apiService.SetToken(response.Token);
