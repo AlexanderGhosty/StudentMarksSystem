@@ -19,11 +19,11 @@ namespace Client.ViewModels
             set { _login = value; OnPropertyChanged(); }
         }
 
-        private string _password;
-        public string Password
+        private string _passwordHash;
+        public string PasswordHash
         {
-            get => _password;
-            set { _password = value; OnPropertyChanged(); }
+            get => _passwordHash;
+            set { _passwordHash = value; OnPropertyChanged(); }
         }
 
         private string _selectedRole = "student";
@@ -60,13 +60,13 @@ namespace Client.ViewModels
 
         
 
-void Save()
+    void Save()
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(UserName) ||
                     string.IsNullOrWhiteSpace(Login) ||
-                    string.IsNullOrWhiteSpace(Password))
+                    string.IsNullOrWhiteSpace(PasswordHash))
                 {
                     ErrorMessage = "Все поля (Имя, Логин, Пароль) должны быть заполнены.";
                     return;

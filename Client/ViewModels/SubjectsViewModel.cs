@@ -2,11 +2,15 @@
 using System.Windows.Input;
 using Client.Models;
 using Client.Services;
+using Client.Views;
+using System.Windows;
 
 namespace Client.ViewModels
 {
     public class SubjectsViewModel : BaseViewModel
     {
+        private readonly IApiService _apiService;
+
         public ObservableCollection<Subject> Subjects { get; set; }
             = new ObservableCollection<Subject>();
 
@@ -18,23 +22,27 @@ namespace Client.ViewModels
             {
                 _selectedSubject = value;
                 OnPropertyChanged();
-                // Можно подгрузить оценки по выбранному предмету и т.д.
             }
         }
+
+        // Если роль текущего пользователя "admin", возвращаем true
+        public bool IsAdmin => GlobalState.CurrentUser?.Role == "admin";
 
         public ICommand LoadSubjectsCommand { get; }
         public ICommand AddSubjectCommand { get; }
         public ICommand DeleteSubjectCommand { get; }
 
-        private readonly IApiService _apiService;
-
         public SubjectsViewModel(IApiService apiService)
         {
             _apiService = apiService;
+            // Команда загрузки
             LoadSubjectsCommand = new RelayCommand(async _ => await LoadSubjectsAsync());
-            AddSubjectCommand = new RelayCommand(async _ => await AddSubjectAsync());
-            DeleteSubjectCommand = new RelayCommand(async _ => await DeleteSubjectAsync());
 
+            // Команды добавления/удаления
+            AddSubjectCommand = new RelayCommand(async _ => await AddSubjectAsync(), _ => IsAdmin);
+            DeleteSubjectCommand = new RelayCommand(async _ => await DeleteSubjectAsync(), _ => IsAdmin);
+
+            // Загрузим предметы при инициализации:
             LoadSubjectsCommand.Execute(null);
         }
 
@@ -51,17 +59,41 @@ namespace Client.ViewModels
 
         private async System.Threading.Tasks.Task AddSubjectAsync()
         {
-            var newSubject = new Subject
+            
+            // 2) Создаём VM диалога, наполняем коллекцию Teachers
+            var dialogVm = new AddSubjectDialogViewModel();
+
+            // 3) Создаем само окно и связываем VM
+            var dialog = new AddSubjectDialogView
             {
-                Title = "Новый предмет",
-                TeacherId = null
+                DataContext = dialogVm,
+                //Owner = Application.Current.MainWindow
             };
-            var result = await _apiService.CreateSubjectAsync(newSubject);
-            if (result.IsSuccess && result.CreatedSubject != null)
+
+            // 4) Показываем диалог
+            bool? result = dialog.ShowDialog();
+            if (result == true && dialogVm.DialogResultOk)
             {
-                Subjects.Add(result.CreatedSubject);
+
+                var newSubject = new Subject
+                {
+                    Title = dialogVm.SubjectTitle
+                };
+
+                // 5) POST /subjects
+                var createResult = await _apiService.CreateSubjectAsync(newSubject);
+                if (createResult.IsSuccess && createResult.CreatedSubject != null)
+                {
+                    // Добавим в локальную коллекцию
+                    Subjects.Add(createResult.CreatedSubject);
+                }
+                else
+                {
+                    // Вывести сообщение об ошибке
+                }
             }
         }
+
 
         private async System.Threading.Tasks.Task DeleteSubjectAsync()
         {
@@ -72,5 +104,7 @@ namespace Client.ViewModels
                 Subjects.Remove(SelectedSubject);
             }
         }
+
+
     }
 }

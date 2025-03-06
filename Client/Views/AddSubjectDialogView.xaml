@@ -1,0 +1,31 @@
+﻿<Window x:Class="Client.Views.AddSubjectDialogView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Новый предмет" Height="220" Width="350"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="ToolWindow"
+        Loaded="Window_Loaded">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Ввод названия -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Text="Название: " VerticalAlignment="Center"/>
+            <TextBox Width="200"
+                     Text="{Binding SubjectTitle, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <!-- Кнопки OK/Отмена -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="OK"
+                    Margin="0,0,10,0"
+                    Command="{Binding OkCommand}"/>
+            <Button Content="Отмена"
+                    Command="{Binding CancelCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>

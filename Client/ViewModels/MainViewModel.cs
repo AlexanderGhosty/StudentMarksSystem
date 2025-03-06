@@ -47,6 +47,8 @@ namespace Client.ViewModels
 
             OpenGradesCommand = new RelayCommand(_ => OpenGrades());
 
+            OpenSubjectsCommand = new RelayCommand(_ => OpenSubjects());
+
             // По умолчанию можем открыть какую-то стартовую страницу
             CurrentViewModel = new HomeViewModel();
         }
@@ -63,6 +65,7 @@ namespace Client.ViewModels
                 System.Diagnostics.Debug.WriteLine("Пользователь не является администратором");
             }
         }
+
 
         private void OpenSubjects()
         {

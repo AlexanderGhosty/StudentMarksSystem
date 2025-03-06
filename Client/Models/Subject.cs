@@ -10,6 +10,5 @@ namespace Client.Models
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
-        public int? TeacherId { get; set; } // Может быть null, если не назначен преподаватель
     }
 }

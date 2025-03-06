@@ -77,7 +77,7 @@ namespace Client.ViewModels
                     {
                         Name = dialogVm.UserName,
                         Login = dialogVm.Login,
-                        Password = dialogVm.Password,
+                        PasswordHash = dialogVm.PasswordHash,
                         Role = dialogVm.SelectedRole
                     };
 

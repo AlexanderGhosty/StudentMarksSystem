@@ -149,6 +149,7 @@ namespace Client.Services
             {
                 res.IsSuccess = false;
                 res.ErrorMessage = "Ошибка при получении предметов";
+                res.Subjects = new List<Subject>(); // Ensure Subjects is not null
             }
             return res;
         }
