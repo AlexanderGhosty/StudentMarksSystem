@@ -1,6 +1,8 @@
-﻿using System.Windows.Input;
+﻿using System.Windows;
+using System.Windows.Input;
 using Client.Models;
 using Client.Services;
+using Client.Views;
 
 namespace Client.ViewModels
 {
@@ -79,9 +81,22 @@ namespace Client.ViewModels
 
         private void Logout()
         {
+            // Очистка данных текущего пользователя
             GlobalState.Clear();
-            // Закрыть текущее окно, открыть заново окно авторизации
-            // Или вызвать другой метод навигации
+
+            // Открываем окно авторизации
+            var navService = new NavigationService();
+            navService.ShowLoginWindow();
+
+            // Закрываем главное окно приложения
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window is MainWindow)
+                {
+                    window.Close();
+                    break;
+                }
+            }
         }
     }
 }
