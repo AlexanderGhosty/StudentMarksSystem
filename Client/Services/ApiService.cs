@@ -229,6 +229,23 @@ namespace Client.Services
             return res;
         }
 
+        public async Task<BasicResponse> DeleteGradeAsync(int gradeId)
+        {
+            var res = new BasicResponse();
+            var response = await _client.DeleteAsync($"/grades/{gradeId}");
+            if (response.IsSuccessStatusCode)
+            {
+                res.IsSuccess = true;
+            }
+            else
+            {
+                res.IsSuccess = false;
+                res.ErrorMessage = "Ошибка при удалении оценки";
+            }
+            return res;
+        }
+
+
         public async Task<CreateGradeResponse> AddOrUpdateGradeAsync(Grade grade)
         {
             // Предположим, сервер ждёт JSON вида:

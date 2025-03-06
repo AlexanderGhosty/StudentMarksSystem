@@ -1,39 +1,86 @@
 ﻿<UserControl x:Class="Client.Views.SubjectsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Client.Views"
-             xmlns:vm="clr-namespace:Client.ViewModels">
+             xmlns:vm="clr-namespace:Client.ViewModels"
+             x:Name="SubjectsViewControl">
+
+    <!-- 
+        Если вы уже объявляете BoolToVisibilityConverter в App.xaml или в главном окне, 
+        можно убрать секцию UserControl.Resources. 
+        Иначе оставьте её, чтобы конвертер был доступен в данном UserControl.
+    -->
     <UserControl.Resources>
         <!-- Используем встроенный BooleanToVisibilityConverter -->
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </UserControl.Resources>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"/>
+            <!-- кнопка "Обновить список" -->
+            <RowDefinition Height="*"   />
+            <!-- таблица предметов -->
+            <RowDefinition Height="Auto"/>
+            <!-- кнопки Добавить/Удалить предмет -->
+            <RowDefinition Height="*"   />
+            <!-- таблица оценок -->
+            <RowDefinition Height="Auto"/>
+            <!-- кнопки по оценкам -->
         </Grid.RowDefinitions>
 
-        <!-- Панель с кнопками (вверху) -->
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0 0 0 10">
-            <Button Content="Добавить предмет"
-                    Command="{Binding AddSubjectCommand}"
-                    Margin="0 0 10 0"
-                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-            <Button Content="Удалить предмет"
-                    Command="{Binding DeleteSubjectCommand}"
-                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
-        </StackPanel>
+        <!-- Кнопка перезагрузить (предметы) -->
+        <Button Grid.Row="0" Content="Обновить список предметов"
+                Command="{Binding LoadSubjectsCommand}"
+                HorizontalAlignment="Left" 
+                Margin="0,0,0,10"/>
 
         <!-- Список предметов -->
-        <DataGrid ItemsSource="{Binding Subjects}"
-                  SelectedItem="{Binding SelectedSubject, Mode=TwoWay}"
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Subjects}"
+                  SelectedItem="{Binding SelectedSubject}"
                   AutoGenerateColumns="False"
-                  Grid.Row="1">
+                  Margin="0,0,0,10">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" IsReadOnly="True" />
-                <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="*" IsReadOnly="True" />
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60" />
+                <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="*" />
             </DataGrid.Columns>
         </DataGrid>
+
+        <!-- Кнопки добавления/удаления предметов (видны только админу) -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal"
+                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Button Content="Добавить предмет" 
+                    Command="{Binding AddSubjectCommand}"
+                    Margin="0,0,10,0" />
+            <Button Content="Удалить выбранный предмет" 
+                    Command="{Binding DeleteSubjectCommand}" />
+        </StackPanel>
+
+        <!-- Таблица оценок (Grades). 
+             Видна всем ролям, чтобы студент мог видеть свои, а teacher/admin – оценки по выбранному предмету. 
+             Но кнопки управления оценками ниже будут скрыты, если это не teacher/admin. -->
+        <DataGrid Grid.Row="3"
+                  ItemsSource="{Binding Grades}"
+                  SelectedItem="{Binding SelectedGrade}"
+                  AutoGenerateColumns="False"
+                  Margin="0,0,0,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Grade ID"    Binding="{Binding Id}"         Width="60" />
+                <DataGridTextColumn Header="Student ID"  Binding="{Binding StudentId}"  Width="80" />
+                <DataGridTextColumn Header="Оценка"      Binding="{Binding GradeValue}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Кнопки добавления/изменения/удаления оценок 
+             (видны только для преподавателя или админа) -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal"
+                    Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Button Content="Добавить/Изменить оценку"
+                    Command="{Binding AddOrUpdateGradeCommand}"
+                    Margin="0,0,10,0" />
+            <Button Content="Удалить оценку"
+                    Command="{Binding DeleteGradeCommand}" />
+        </StackPanel>
+
     </Grid>
 </UserControl>
