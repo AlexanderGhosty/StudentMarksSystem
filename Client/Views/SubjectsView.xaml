@@ -4,11 +4,6 @@
              xmlns:vm="clr-namespace:Client.ViewModels"
              x:Name="SubjectsViewControl">
 
-    <!-- 
-        Если вы уже объявляете BoolToVisibilityConverter в App.xaml или в главном окне, 
-        можно убрать секцию UserControl.Resources. 
-        Иначе оставьте её, чтобы конвертер был доступен в данном UserControl.
-    -->
     <UserControl.Resources>
         <!-- Используем встроенный BooleanToVisibilityConverter -->
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -39,6 +34,8 @@
                   ItemsSource="{Binding Subjects}"
                   SelectedItem="{Binding SelectedSubject}"
                   AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
                   Margin="0,0,0,10">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60" />
@@ -63,6 +60,8 @@
                   ItemsSource="{Binding Grades}"
                   SelectedItem="{Binding SelectedGrade}"
                   AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
                   Margin="0,0,0,10">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Grade ID"    Binding="{Binding Id}"         Width="60" />

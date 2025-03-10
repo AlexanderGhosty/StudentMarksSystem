@@ -18,6 +18,8 @@
             <DataGrid ItemsSource="{Binding Users}"
                       SelectedItem="{Binding SelectedUser}"
                       AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
                       Height="200"
                       Margin="0,0,0,10">
                 <DataGrid.Columns>

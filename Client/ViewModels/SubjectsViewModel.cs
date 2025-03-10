@@ -26,6 +26,16 @@ namespace Client.ViewModels
                 _selectedSubject = value;
                 OnPropertyChanged();
 
+                // Дергаем CanExecuteChanged, чтобы кнопки, завязанные на SelectedSubject, обновились
+                if (DeleteSubjectCommand is RelayCommand delSubCmd)
+                    delSubCmd.RaiseCanExecuteChanged();
+
+                if (LoadGradesCommand is RelayCommand loadGradesCmd)
+                    loadGradesCmd.RaiseCanExecuteChanged();
+
+                if (AddOrUpdateGradeCommand is RelayCommand addUpdCmd)
+                    addUpdCmd.RaiseCanExecuteChanged();
+
                 // Если выбран предмет и мы являемся учителем или админом, сразу загрузим оценки.
                 if (IsTeacherOrAdmin && _selectedSubject != null)
                 {
@@ -46,6 +56,10 @@ namespace Client.ViewModels
             {
                 _selectedGrade = value;
                 OnPropertyChanged();
+
+                // Чтобы кнопка удаления оценки включалась/выключалась
+                if (DeleteGradeCommand is RelayCommand delGradeCmd)
+                    delGradeCmd.RaiseCanExecuteChanged();
             }
         }
 
