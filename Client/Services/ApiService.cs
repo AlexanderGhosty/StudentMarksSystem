@@ -245,13 +245,9 @@ namespace Client.Services
             return res;
         }
 
-
-        public async Task<CreateGradeResponse> AddOrUpdateGradeAsync(Grade grade)
+        public async Task<CreateGradeResponse> AddGradeAsync(Grade grade)
         {
-            // Предположим, сервер ждёт JSON вида:
-            // { "student_id": <int>, "subject_id": <int>, "grade": <int> }
-            // для POST /grades (upsert).
-
+            // Собираем JSON
             var requestObj = new
             {
                 student_id = grade.StudentId,
@@ -266,9 +262,7 @@ namespace Client.Services
             var result = new CreateGradeResponse();
             if (response.IsSuccessStatusCode)
             {
-                // Допустим, сервер возвращает сохранённый объект
-                // { "student_id":..., "student_name":..., "subject_id":..., "subject_title":..., "grade":... }
-                // Приведём к нашей модели Grade
+
                 var respJson = await response.Content.ReadAsStringAsync();
                 var updatedGrade = JsonConvert.DeserializeObject<Grade>(respJson);
 
@@ -278,10 +272,9 @@ namespace Client.Services
             else
             {
                 result.IsSuccess = false;
-                result.ErrorMessage = "Ошибка при добавлении/обновлении оценки";
+                result.ErrorMessage = "Ошибка при добавлении оценки";
             }
             return result;
         }
-
     }
 }

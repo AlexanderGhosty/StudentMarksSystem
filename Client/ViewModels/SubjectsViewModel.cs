@@ -255,38 +255,49 @@ namespace Client.ViewModels
         /// </summary>
         private async System.Threading.Tasks.Task AddOrUpdateGradeAsync()
         {
-            if (SelectedSubject == null) return;
-
-            // Пример: выводим 2 InputBox. В реальном проекте лучше отдельное диалоговое окно.
-            // 1) ID студента
-            var studentIdString = Microsoft.VisualBasic.Interaction.InputBox(
-                "Введите ID студента:", "Новая/Изменить оценка", "");
-            if (!int.TryParse(studentIdString, out int studentId)) return;
-
-            // 2) Оценка
-            var gradeValueString = Microsoft.VisualBasic.Interaction.InputBox(
-                "Введите значение оценки (число):", "Новая/Изменить оценка", "");
-            if (!int.TryParse(gradeValueString, out int gradeValue)) return;
-
-            var grade = new Grade
-            {
-                StudentId = studentId,
-                SubjectId = SelectedSubject.Id,
-                GradeValue = gradeValue
-            };
-
-            var res = await _apiService.AddOrUpdateGradeAsync(grade);
-            if (!res.IsSuccess)
-            {
-                MessageBox.Show(res.ErrorMessage ?? "Ошибка при добавлении/изменении оценки");
+            if (SelectedSubject == null)
                 return;
-            }
+            
+            // Открываем диалоговое окно
+            var gradeDialog = new GradeDialog(_apiService);
 
-            // Если сервер вернул обновлённый объект, можно сразу обновить локальную коллекцию,
-            // либо проще – заново подгрузить список.
-            // Для наглядности перезагрузим.
-            await LoadGradesAsync();
+            bool? dialogResult = gradeDialog.ShowDialog();
+            if (dialogResult == true)
+            {
+                // Получаем выбранного пользователя и оценку из ViewModel диалога
+                var vm = gradeDialog.ViewModel;
+                if (vm.SelectedUser == null)
+                {
+                    MessageBox.Show("Не выбран студент.");
+                    return;
+                }
+                if (!int.TryParse(vm.SelectedGrade, out int gradeValue))
+                {
+                    MessageBox.Show("Некорректное значение оценки.");
+                    return;
+                }
+
+                // Формируем объект Grade
+                var grade = new Grade
+                {
+                    StudentId = vm.SelectedUser.Id,
+                    SubjectId = SelectedSubject.Id,
+                    GradeValue = gradeValue
+                };
+
+                // Отправляем на сервер
+                var res = await _apiService.AddGradeAsync(grade);
+                if (!res.IsSuccess)
+                {
+                    MessageBox.Show(res.ErrorMessage ?? "Ошибка при добавлении/изменении оценки");
+                    return;
+                }
+
+                // Перезагрузим список оценок (для обновления UI)
+                await LoadGradesAsync();
+            }
         }
+
 
         private async System.Threading.Tasks.Task DeleteGradeAsync()
         {

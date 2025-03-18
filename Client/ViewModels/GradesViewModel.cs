@@ -120,7 +120,7 @@ namespace Client.ViewModels
             SelectedGrade.GradeValue = NewGradeValue;
 
             // Отправляем на сервер
-            var result = await _apiService.AddOrUpdateGradeAsync(SelectedGrade);
+            var result = await _apiService.AddGradeAsync(SelectedGrade);
             if (result.IsSuccess && result.CreatedGrade != null)
             {
                 // Обновим в локальной коллекции

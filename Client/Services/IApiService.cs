@@ -19,7 +19,7 @@ namespace Client.Services
 
         Task<GradesResponse> GetGradesBySubjectAsync(int subjectId);
         Task<GradesResponse> GetGradesByStudentAsync(int studentId);
-        Task<CreateGradeResponse> AddOrUpdateGradeAsync(Grade grade);
+        Task<CreateGradeResponse> AddGradeAsync(Grade grade);
         Task<BasicResponse> DeleteGradeAsync(int gradeId);
     }
 }

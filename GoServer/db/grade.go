@@ -1,21 +1,29 @@
 package db
 
 import (
-    "database/sql"
-    "GoServer/models"
+	"GoServer/models"
+	"database/sql"
 	"fmt"
 )
 
-func AddOrUpdateGrade(db *sql.DB, grade models.Grade) error {
-    // ON CONFLICT (student_id, subject_id) DO UPDATE SET grade ...
-    // При условии, что в схеме есть уникальный индекс
-    _, err := db.Exec(`
-        INSERT INTO Grades(student_id, subject_id, grade)
-        VALUES($1, $2, $3)
-        ON CONFLICT (student_id, subject_id)
-        DO UPDATE SET grade=EXCLUDED.grade
+//func AddOrUpdateGrade(db *sql.DB, grade models.Grade) error {
+//    // ON CONFLICT (student_id, subject_id) DO UPDATE SET grade ...
+//    // При условии, что в схеме есть уникальный индекс
+//    _, err := db.Exec(`
+//        INSERT INTO Grades(student_id, subject_id, grade)
+//        VALUES($1, $2, $3)
+//        ON CONFLICT (student_id, subject_id)
+//        DO UPDATE SET grade=EXCLUDED.grade
+//    `, grade.StudentId, grade.SubjectId, grade.GradeValue)
+//    return err
+//}
+
+func AddGrade(db *sql.DB, grade models.Grade) error {
+	_, err := db.Exec(`
+        INSERT INTO Grades (student_id, subject_id, grade)
+        VALUES ($1, $2, $3)
     `, grade.StudentId, grade.SubjectId, grade.GradeValue)
-    return err
+	return err
 }
 
 func GetGradesBySubject(db *sql.DB, subjectId int) ([]models.Grade, error) {
@@ -65,13 +73,13 @@ func GetGradesByStudent(db *sql.DB, studentId int) ([]models.Grade, error) {
 }
 
 func DeleteGrade(db *sql.DB, gradeId int) error {
-    result, err := db.Exec(`DELETE FROM Grades WHERE id=$1`, gradeId)
-    if err != nil {
-        return err
-    }
-    rowsAffected, _ := result.RowsAffected()
-    if rowsAffected == 0 {
-        return fmt.Errorf("grade with id=%d not found", gradeId)
-    }
-    return nil
+	result, err := db.Exec(`DELETE FROM Grades WHERE id=$1`, gradeId)
+	if err != nil {
+		return err
+	}
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return fmt.Errorf("grade with id=%d not found", gradeId)
+	}
+	return nil
 }
