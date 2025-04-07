@@ -19,6 +19,8 @@ namespace Client.ViewModels
             }
         }
 
+        public ICommand OpenHomeCommand { get; }
+
         public ICommand OpenAdminPanelCommand { get; }
         public ICommand OpenSubjectsCommand { get; }
         public ICommand LogoutCommand { get; }
@@ -46,13 +48,16 @@ namespace Client.ViewModels
             OpenAdminPanelCommand = new RelayCommand(_ => OpenAdminPanel());
             OpenSubjectsCommand = new RelayCommand(_ => OpenSubjects());
             LogoutCommand = new RelayCommand(_ => Logout());
-
-            OpenGradesCommand = new RelayCommand(_ => OpenGrades());
-
+        
             OpenSubjectsCommand = new RelayCommand(_ => OpenSubjects());
+            OpenHomeCommand = new RelayCommand(_ => OpenHomeView());
 
             // По умолчанию можем открыть какую-то стартовую страницу
-            CurrentViewModel = new HomeViewModel();
+            CurrentViewModel = new HomeViewModel(_apiService);
+        }
+        private void OpenHomeView()
+        {
+            CurrentViewModel = new HomeViewModel(_apiService);
         }
 
         private void OpenAdminPanel()
@@ -72,11 +77,6 @@ namespace Client.ViewModels
         private void OpenSubjects()
         {
             CurrentViewModel = new SubjectsViewModel(_apiService);
-        }
-
-        private void OpenGrades()
-        {
-            CurrentViewModel = new GradesViewModel(_apiService);
         }
 
         private void Logout()

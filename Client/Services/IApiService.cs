@@ -15,6 +15,7 @@ namespace Client.Services
         Task<SubjectsResponse> GetAllSubjectsAsync();
         Task<CreateSubjectResponse> CreateSubjectAsync(Subject subject);
         Task<BasicResponse> DeleteSubjectAsync(int subjectId);
+        Task<BasicResponse> UpdateSubjectAsync(int subjectId, string newTitle);
 
 
         Task<GradesResponse> GetGradesBySubjectAsync(int subjectId);

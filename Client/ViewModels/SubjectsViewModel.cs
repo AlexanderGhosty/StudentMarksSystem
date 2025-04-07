@@ -29,6 +29,9 @@ namespace Client.ViewModels
                 // Дергаем CanExecuteChanged, чтобы кнопки, завязанные на SelectedSubject, обновились
                 if (DeleteSubjectCommand is RelayCommand delSubCmd)
                     delSubCmd.RaiseCanExecuteChanged();
+                
+                if (RenameSubjectCommand is RelayCommand renSubCmd)
+                    renSubCmd.RaiseCanExecuteChanged();
 
                 if (LoadGradesCommand is RelayCommand loadGradesCmd)
                     loadGradesCmd.RaiseCanExecuteChanged();
@@ -85,6 +88,7 @@ namespace Client.ViewModels
         public ICommand LoadSubjectsCommand { get; }
         public ICommand AddSubjectCommand { get; }
         public ICommand DeleteSubjectCommand { get; }
+        public ICommand RenameSubjectCommand { get; }
 
         // Оценки
         public ICommand LoadGradesCommand { get; }
@@ -104,7 +108,9 @@ namespace Client.ViewModels
             AddSubjectCommand = new RelayCommand(async _ => await AddSubjectAsync(), _ => IsAdmin);
             DeleteSubjectCommand = new RelayCommand(async _ => await DeleteSubjectAsync(),
                                                    _ => IsAdmin && SelectedSubject != null);
-           
+            RenameSubjectCommand = new RelayCommand(async _ => await RenameSubjectAsync(),
+                                            _ => IsAdmin && SelectedSubject != null);
+
             LoadGradesCommand = new RelayCommand(async _ => await LoadGradesAsync(), _ => SelectedSubject != null);
 
             AddOrUpdateGradeCommand = new RelayCommand(async _ => await AddOrUpdateGradeAsync(),
@@ -224,6 +230,41 @@ namespace Client.ViewModels
             }
         }
 
+        private async Task RenameSubjectAsync()
+        {
+            if (SelectedSubject == null) return;
+
+            // 1) Открываем диалог или любой способ получить новое название.
+            // Ниже для примера вызываем некий "диалог переименования".
+            var dialogVm = new RenameSubjectDialogViewModel(SelectedSubject.Title);
+            var dialog = new RenameSubjectDialogView
+            {
+                DataContext = dialogVm
+            };
+
+            bool? result = dialog.ShowDialog();
+            if (result == true && dialogVm.DialogResultOk)
+            {
+                // Получаем новое название, которое пользователь ввёл
+                string newTitle = dialogVm.SubjectTitle;
+
+                // 2) Шлём запрос на сервер
+                var updateResult = await _apiService.UpdateSubjectAsync(SelectedSubject.Id, newTitle);
+                if (updateResult.IsSuccess)
+                {
+                    // 3) Обновляем локально выбранный предмет, чтобы UI сразу отобразил изменения
+                    SelectedSubject.Title = newTitle;
+                    // Если нужно обновить сразу в ObservableCollection, 
+                    // то можно вызвать OnPropertyChanged("Subjects") или вручную обновить саму коллекцию
+                    OnPropertyChanged(nameof(Subjects));
+                }
+                else
+                {
+                    MessageBox.Show(updateResult.ErrorMessage ?? "Не удалось переименовать предмет");
+                }
+            }
+        }
+
         #endregion
 
         #region Методы для работы с оценками
@@ -247,9 +288,13 @@ namespace Client.ViewModels
                     foreach (var g in gradesRes.Grades)
                         Grades.Add(g);
                 }
+                else if (gradesRes.Grades == null)
+                {
+                    MessageBox.Show(gradesRes.ErrorMessage ?? "Оценки отсутствуют");
+                }
                 else
                 {
-                    MessageBox.Show(gradesRes.ErrorMessage ?? "Ошибка при загрузке оценок");
+                    MessageBox.Show(gradesRes.ErrorMessage ?? "Ошибка при получении оценок");
                 }
             }
             else if (IsStudent)

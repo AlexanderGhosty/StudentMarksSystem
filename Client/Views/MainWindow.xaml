@@ -13,6 +13,9 @@
         <DataTemplate DataType="{x:Type vm:SubjectsViewModel}">
             <views:SubjectsView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:HomeViewModel}">
+            <views:HomeView />
+        </DataTemplate>
 
     </Window.Resources>
     <Window.DataContext>
@@ -32,11 +35,10 @@
                     Command="{Binding OpenAdminPanelCommand}"
                     Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}" />
 
+            <Button Content="Домой" Margin="5"
+                    Command="{Binding OpenHomeCommand}"/>
             <Button Content="Предметы" Margin="5"
                     Command="{Binding OpenSubjectsCommand}"/>
-
-            <Button Content="Оценки" Margin="5"
-                    Command="{Binding OpenGradesCommand}" />
 
             <Button Content="Выход" Margin="5"
                     Command="{Binding LogoutCommand}" />
@@ -45,7 +47,6 @@
         <!-- Область контента -->
         <ContentControl Grid.Column="1" Margin="5"
                         Content="{Binding CurrentViewModel}">
-            <!-- Здесь обычно через DataTemplate связываются VM -> View -->
         </ContentControl>
     </Grid>
 </Window>

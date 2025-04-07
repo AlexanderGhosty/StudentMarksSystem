@@ -49,6 +49,9 @@
             <Button Content="Добавить предмет" 
                     Command="{Binding AddSubjectCommand}"
                     Margin="0,0,10,0" />
+            <Button Content="Переименовать" 
+                    Command="{Binding RenameSubjectCommand}"
+                    Margin="0,0,10,0"/>
             <Button Content="Удалить выбранный предмет" 
                     Command="{Binding DeleteSubjectCommand}" />
         </StackPanel>
@@ -76,7 +79,7 @@
              (видны только для преподавателя или админа) -->
         <StackPanel Grid.Row="4" Orientation="Horizontal"
                     Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Button Content="Добавить/Изменить оценку"
+            <Button Content="Добавить оценку"
                     Command="{Binding AddOrUpdateGradeCommand}"
                     Margin="0,0,10,0" />
             <Button Content="Удалить оценку"

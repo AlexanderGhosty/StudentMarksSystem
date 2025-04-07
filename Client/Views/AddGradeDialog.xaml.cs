@@ -6,14 +6,14 @@ namespace Client.Views
 {
     public partial class GradeDialog : Window
     {
-        public GradeDialogViewModel ViewModel { get; private set; }
+        public AddGradeDialogViewModel ViewModel { get; private set; }
 
         public GradeDialog(IApiService _apiService)
         {
             InitializeComponent();
 
             // Создаём ViewModel и присваиваем DataContext
-            ViewModel = new GradeDialogViewModel(_apiService);
+            ViewModel = new AddGradeDialogViewModel(_apiService);
             DataContext = ViewModel;
         }
 

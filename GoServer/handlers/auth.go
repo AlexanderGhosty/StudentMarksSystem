@@ -51,9 +51,10 @@ func LoginHandler(c *gin.Context, database *sql.DB) {
 		"success": true,
 		"token":   tokenString,
 		"user": gin.H{
-			"id":   user.ID,
-			"name": user.Name,
-			"role": user.Role,
+			"id":    user.ID,
+			"name":  user.Name,
+			"login": user.Login,
+			"role":  user.Role,
 		},
 	})
 }

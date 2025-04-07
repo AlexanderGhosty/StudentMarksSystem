@@ -191,6 +191,33 @@ namespace Client.Services
             return res;
         }
 
+        public async Task<BasicResponse> UpdateSubjectAsync(int subjectId, string newTitle)
+        {
+            var responseResult = new BasicResponse();
+
+            var data = new
+            {
+                title = newTitle,
+                teacher_id = (int?)null // Если у вас не нужно менять привязку к преподавателю, передаём null
+            };
+
+            var json = JsonConvert.SerializeObject(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _client.PutAsync($"/subjects/{subjectId}", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                responseResult.IsSuccess = true;
+            }
+            else
+            {
+                responseResult.IsSuccess = false;
+                responseResult.ErrorMessage = "Ошибка при обновлении названия предмета";
+            }
+
+            return responseResult;
+        }
+
         public async Task<GradesResponse> GetGradesBySubjectAsync(int subjectId)
         {
             var res = new GradesResponse();

@@ -9,11 +9,11 @@ using Client.Services;
 
 namespace Client.ViewModels
 {
-    public class GradeDialogViewModel : BaseViewModel
+    public class AddGradeDialogViewModel : BaseViewModel
     {
         private readonly IApiService _apiService;
 
-        public GradeDialogViewModel(IApiService apiService)
+        public AddGradeDialogViewModel(IApiService apiService)
         {
             // Экземпляр ApiService для запросов на сервер
             _apiService = apiService;
