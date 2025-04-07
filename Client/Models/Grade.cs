@@ -21,6 +21,7 @@ namespace Client.Models
         public int GradeValue { get; set; }
 
         // Дополнительно для удобства отображения
+        [JsonProperty("student_name")]
         public string StudentName { get; set; } = string.Empty;
         public string SubjectTitle { get; set; } = string.Empty;
     }

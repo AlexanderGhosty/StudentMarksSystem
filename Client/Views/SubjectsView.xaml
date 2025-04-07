@@ -71,6 +71,7 @@
                                     Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <DataGridTextColumn Header="Student ID" Binding="{Binding StudentId}" Width="80"  
                                     Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <DataGridTextColumn Header="Имя студента" Binding="{Binding StudentName}" />
                 <DataGridTextColumn Header="Оценка"      Binding="{Binding GradeValue}" Width="*" />
             </DataGrid.Columns>
         </DataGrid>

@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-// AddGrade inserts a new grade entry into the Grades table in the database and returns any encountered error.
+// AddGrade inserts a new grade record into the database and returns an error if the operation fails.
 func AddGrade(db *sql.DB, grade models.Grade) error {
 	_, err := db.Exec(`
         INSERT INTO Grades (student_id, subject_id, grade)
@@ -15,13 +15,16 @@ func AddGrade(db *sql.DB, grade models.Grade) error {
 	return err
 }
 
-// GetGradesBySubject retrieves a list of grades filtered by a specific subject ID from the database.
-// The function takes a database connection and a subject ID as parameters and returns a slice of Grade models or an error.
+// GetGradesBySubject retrieves a list of grades for a specific subject from the database using the given subject ID.
+// Returns a slice of models.Grade or an error if the database query fails.
+// The 'db' parameter represents the database connection.
 func GetGradesBySubject(db *sql.DB, subjectId int) ([]models.Grade, error) {
 	rows, err := db.Query(`
-        SELECT id, student_id, subject_id, grade
-        FROM Grades
-        WHERE subject_id = $1
+        SELECT g.id, g.student_id, g.subject_id, g.grade,
+               u.name as student_name
+        FROM grades g
+        JOIN users u ON g.student_id = u.id
+        WHERE g.subject_id = $1
     `, subjectId)
 	if err != nil {
 		return nil, err
@@ -31,7 +34,7 @@ func GetGradesBySubject(db *sql.DB, subjectId int) ([]models.Grade, error) {
 	var grades []models.Grade
 	for rows.Next() {
 		var gr models.Grade
-		if err := rows.Scan(&gr.Id, &gr.StudentId, &gr.SubjectId, &gr.GradeValue); err != nil {
+		if err := rows.Scan(&gr.Id, &gr.StudentId, &gr.SubjectId, &gr.GradeValue, &gr.StudentName); err != nil {
 			return nil, err
 		}
 		grades = append(grades, gr)
@@ -39,14 +42,16 @@ func GetGradesBySubject(db *sql.DB, subjectId int) ([]models.Grade, error) {
 	return grades, nil
 }
 
-// GetGradesByStudent retrieves a list of grades for a specified student by their ID from the database.
-// It takes a database connection and the student ID as parameters and returns a slice of grades or an error.
-// Returns an error if the query execution or data scanning fails.
+// GetGradesByStudent retrieves all grades for a specified student by their ID from the database.
+// It returns a slice of Grade models and an error if any issue occurs during the query or data scanning.
+// The database connection is passed as an argument, along with the student ID to filter records.
 func GetGradesByStudent(db *sql.DB, studentId int) ([]models.Grade, error) {
 	rows, err := db.Query(`
-        SELECT id, student_id, subject_id, grade
-        FROM Grades
-        WHERE student_id = $1
+        SELECT g.id, g.student_id, g.subject_id, g.grade,
+               u.name as student_name
+        FROM grades g
+        JOIN users u ON g.student_id = u.id
+        WHERE g.student_id = $1
     `, studentId)
 	if err != nil {
 		return nil, err
@@ -56,7 +61,7 @@ func GetGradesByStudent(db *sql.DB, studentId int) ([]models.Grade, error) {
 	var grades []models.Grade
 	for rows.Next() {
 		var gr models.Grade
-		if err := rows.Scan(&gr.Id, &gr.StudentId, &gr.SubjectId, &gr.GradeValue); err != nil {
+		if err := rows.Scan(&gr.Id, &gr.StudentId, &gr.SubjectId, &gr.GradeValue, &gr.StudentName); err != nil {
 			return nil, err
 		}
 		grades = append(grades, gr)
@@ -64,7 +69,7 @@ func GetGradesByStudent(db *sql.DB, studentId int) ([]models.Grade, error) {
 	return grades, nil
 }
 
-// DeleteGrade removes a grade from the database by its ID. Returns an error if the grade ID is not found or the query fails.
+// DeleteGrade removes a grade record from the database by its ID and returns an error if the operation fails or no rows are affected.
 func DeleteGrade(db *sql.DB, gradeId int) error {
 	result, err := db.Exec(`DELETE FROM Grades WHERE id=$1`, gradeId)
 	if err != nil {
