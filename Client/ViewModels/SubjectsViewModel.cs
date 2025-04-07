@@ -37,7 +37,7 @@ namespace Client.ViewModels
                     addUpdCmd.RaiseCanExecuteChanged();
 
                 // Если выбран предмет и мы являемся учителем или админом, сразу загрузим оценки.
-                if (IsTeacherOrAdmin && _selectedSubject != null)
+                if (_selectedSubject != null)
                 {
                     LoadGradesCommand.Execute(null);
                 }
@@ -104,10 +104,8 @@ namespace Client.ViewModels
             AddSubjectCommand = new RelayCommand(async _ => await AddSubjectAsync(), _ => IsAdmin);
             DeleteSubjectCommand = new RelayCommand(async _ => await DeleteSubjectAsync(),
                                                    _ => IsAdmin && SelectedSubject != null);
-
-            // Команды для оценок
-            LoadGradesCommand = new RelayCommand(async _ => await LoadGradesAsync(),
-                                                 _ => IsTeacherOrAdmin && SelectedSubject != null);
+           
+            LoadGradesCommand = new RelayCommand(async _ => await LoadGradesAsync(), _ => SelectedSubject != null);
 
             AddOrUpdateGradeCommand = new RelayCommand(async _ => await AddOrUpdateGradeAsync(),
                                                        _ => IsTeacherOrAdmin && SelectedSubject != null);
@@ -125,21 +123,51 @@ namespace Client.ViewModels
         {
             Subjects.Clear();
 
-            // Если студент, вы можете (по желанию) ему и вовсе не грузить список предметов.
-            // Но в данном примере мы просто грузим все предметы – студент будет видеть
-            // список, но не сможет ничего менять.
-            var result = await _apiService.GetAllSubjectsAsync();
-            if (result.IsSuccess && result.Subjects != null)
-            {
-                foreach (var s in result.Subjects)
-                    Subjects.Add(s);
-            }
-
-            // Если это студент, сразу грузим его собственные оценки,
-            // чтобы он видел их без привязки к выбранному предмету.
+            // Если студент — выбираем только те предметы, по которым у него есть оценки
             if (IsStudent)
             {
-                await LoadStudentGradesAsync();
+                // 1) Получаем оценки студента
+                var gradesResp = await _apiService.GetGradesByStudentAsync(GlobalState.CurrentUser.Id);
+                if (!gradesResp.IsSuccess || gradesResp.Grades == null)
+                {
+                    MessageBox.Show(gradesResp.ErrorMessage ?? "Ошибка при загрузке ваших оценок");
+                    return;
+                }
+
+                // Список уникальных Id предметов, по которым есть оценки у студента
+                var subjectIds = gradesResp.Grades
+                                           .Select(g => g.SubjectId)
+                                           .Distinct()
+                                           .ToList();
+
+                // 2) Загружаем все предметы и фильтруем
+                var subjectsResp = await _apiService.GetAllSubjectsAsync();
+                if (subjectsResp.IsSuccess && subjectsResp.Subjects != null)
+                {
+                    var filteredSubjects = subjectsResp.Subjects
+                                                       .Where(s => subjectIds.Contains(s.Id));
+
+                    foreach (var s in filteredSubjects)
+                        Subjects.Add(s);
+                }
+                else
+                {
+                    MessageBox.Show(subjectsResp.ErrorMessage ?? "Ошибка при загрузке предметов");
+                }
+            }
+            else
+            {
+                // Если роль teacher или admin – загружаем все предметы
+                var result = await _apiService.GetAllSubjectsAsync();
+                if (result.IsSuccess && result.Subjects != null)
+                {
+                    foreach (var s in result.Subjects)
+                        Subjects.Add(s);
+                }
+                else
+                {
+                    MessageBox.Show(result.ErrorMessage ?? "Ошибка при загрузке предметов");
+                }
             }
         }
 
@@ -201,8 +229,7 @@ namespace Client.ViewModels
         #region Методы для работы с оценками
 
         /// <summary>
-        /// Загрузить оценки по выбранному предмету (если teacher/admin),
-        /// либо (если студент) – этот метод не вызываем. Для студента отдельный метод.
+        /// Загрузить оценки по выбранному предмету 
         /// </summary>
         private async System.Threading.Tasks.Task LoadGradesAsync()
         {
@@ -210,22 +237,36 @@ namespace Client.ViewModels
                 return;
 
             Grades.Clear();
-            var gradesRes = await _apiService.GetGradesBySubjectAsync(SelectedSubject.Id);
-            if (gradesRes.IsSuccess)
+
+            if (IsTeacherOrAdmin)
             {
-                if (gradesRes.Grades != null && gradesRes.Grades.Count > 0)
+                // Как и раньше: грузим все оценки по предмету
+                var gradesRes = await _apiService.GetGradesBySubjectAsync(SelectedSubject.Id);
+                if (gradesRes.IsSuccess && gradesRes.Grades != null)
                 {
                     foreach (var g in gradesRes.Grades)
                         Grades.Add(g);
                 }
                 else
                 {
-                    MessageBox.Show($"Нет оценок для предмета '{SelectedSubject.Title}'.");
+                    MessageBox.Show(gradesRes.ErrorMessage ?? "Ошибка при загрузке оценок");
                 }
             }
-            else
+            else if (IsStudent)
             {
-                MessageBox.Show(gradesRes.ErrorMessage ?? $"Не удалось получить оценки для предмета ID={SelectedSubject.Id}");
+                // Для студента – грузим все его оценки и фильтруем по предмету
+                var resp = await _apiService.GetGradesByStudentAsync(GlobalState.CurrentUser.Id);
+                if (resp.IsSuccess && resp.Grades != null)
+                {
+                    var subjectGrades = resp.Grades
+                                            .Where(g => g.SubjectId == SelectedSubject.Id);
+                    foreach (var g in subjectGrades)
+                        Grades.Add(g);
+                }
+                else
+                {
+                    MessageBox.Show(resp.ErrorMessage ?? "Ошибка при загрузке ваших (студенческих) оценок");
+                }
             }
         }
 

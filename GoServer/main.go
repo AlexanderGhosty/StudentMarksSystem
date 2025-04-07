@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// bootstrapAdmin проверяет, существует ли пользователь с ролью "admin" и, если нет, создаёт его.
+// bootstrapAdmin ensures an admin user exists in the database; creates one with default credentials if absent.
 func bootstrapAdmin(database *sql.DB) {
 	var exists bool
 	err := database.QueryRow(`SELECT EXISTS (SELECT 1 FROM Users WHERE role = 'admin')`).Scan(&exists)
@@ -21,7 +21,6 @@ func bootstrapAdmin(database *sql.DB) {
 		log.Fatalf("Ошибка проверки наличия администратора: %v", err)
 	}
 	if !exists {
-		// Хешируем пароль "admin"
 		hashed, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
 		if err != nil {
 			log.Fatalf("Ошибка хеширования пароля: %v", err)
@@ -40,24 +39,21 @@ func bootstrapAdmin(database *sql.DB) {
 	}
 }
 
+// main initializes the database connection, sets up routes and middleware, and starts the HTTP server at port 8080.
 func main() {
-	// Подключаемся к БД
 	database, err := db.OpenDB("host=localhost port=5432 user=postgres password=postgres dbname=postgres sslmode=disable")
 	if err != nil {
 		log.Fatalf("Cannot open DB: %v", err)
 	}
 
-	// Выполняем bootstrap‑логику для создания администратора, если его нет
 	bootstrapAdmin(database)
 
 	r := gin.Default()
 
-	// Не требует авторизации
 	r.POST("/login", func(c *gin.Context) {
 		handlers.LoginHandler(c, database)
 	})
 
-	// Защищённая группа
 	authorized := r.Group("/")
 	authorized.Use(middleware.AuthMiddleware())
 	{

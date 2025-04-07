@@ -64,8 +64,10 @@
                   CanUserDeleteRows="False"
                   Margin="0,0,0,10">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Grade ID"    Binding="{Binding Id}"         Width="60" />
-                <DataGridTextColumn Header="Student ID"  Binding="{Binding StudentId}"  Width="80" />
+                <DataGridTextColumn Header="Grade ID" Binding="{Binding Id}" Width="60"  
+                                    Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <DataGridTextColumn Header="Student ID" Binding="{Binding StudentId}" Width="80"  
+                                    Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <DataGridTextColumn Header="Оценка"      Binding="{Binding GradeValue}" Width="*" />
             </DataGrid.Columns>
         </DataGrid>
