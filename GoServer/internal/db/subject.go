@@ -1,7 +1,7 @@
 package db
 
 import (
-	"GoServer/models"
+	"GoServer/internal/models"
 	"database/sql"
 )
 

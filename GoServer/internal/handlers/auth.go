@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"GoServer/models"
+	"GoServer/internal/models"
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"

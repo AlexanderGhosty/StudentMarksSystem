@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"GoServer/models"
+	"GoServer/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
