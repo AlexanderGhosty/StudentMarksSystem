@@ -1,11 +1,11 @@
 package handlers
 
 import (
+	"GoServer/internal/db"
 	"database/sql"
 	"net/http"
 	"strconv"
 
-	"GoServer/db"
 	"GoServer/models"
 	"github.com/gin-gonic/gin"
 )

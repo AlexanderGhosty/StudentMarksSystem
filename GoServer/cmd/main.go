@@ -1,13 +1,13 @@
 package main
 
 import (
+	"GoServer/internal/db"
+	handlers2 "GoServer/internal/handlers"
+	"GoServer/internal/middleware"
 	"database/sql"
 	"fmt"
 	"log"
 
-	"GoServer/db"
-	"GoServer/handlers"
-	"GoServer/middleware"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
@@ -51,25 +51,25 @@ func main() {
 	r := gin.Default()
 
 	r.POST("/login", func(c *gin.Context) {
-		handlers.LoginHandler(c, database)
+		handlers2.LoginHandler(c, database)
 	})
 
 	authorized := r.Group("/")
 	authorized.Use(middleware.AuthMiddleware())
 	{
-		authorized.GET("/users", func(c *gin.Context) { handlers.GetAllUsers(c, database) })
-		authorized.POST("/users", func(c *gin.Context) { handlers.CreateUser(c, database) })
-		authorized.DELETE("/users/:id", func(c *gin.Context) { handlers.DeleteUser(c, database) })
-		authorized.PUT("/users/:id", func(c *gin.Context) { handlers.UpdateUser(c, database) })
+		authorized.GET("/users", func(c *gin.Context) { handlers2.GetAllUsers(c, database) })
+		authorized.POST("/users", func(c *gin.Context) { handlers2.CreateUser(c, database) })
+		authorized.DELETE("/users/:id", func(c *gin.Context) { handlers2.DeleteUser(c, database) })
+		authorized.PUT("/users/:id", func(c *gin.Context) { handlers2.UpdateUser(c, database) })
 
-		authorized.GET("/subjects", func(c *gin.Context) { handlers.GetAllSubjects(c, database) })
-		authorized.POST("/subjects", func(c *gin.Context) { handlers.CreateSubject(c, database) })
-		authorized.DELETE("/subjects/:id", func(c *gin.Context) { handlers.DeleteSubject(c, database) })
-		authorized.PUT("/subjects/:id", func(c *gin.Context) { handlers.UpdateSubject(c, database) })
+		authorized.GET("/subjects", func(c *gin.Context) { handlers2.GetAllSubjects(c, database) })
+		authorized.POST("/subjects", func(c *gin.Context) { handlers2.CreateSubject(c, database) })
+		authorized.DELETE("/subjects/:id", func(c *gin.Context) { handlers2.DeleteSubject(c, database) })
+		authorized.PUT("/subjects/:id", func(c *gin.Context) { handlers2.UpdateSubject(c, database) })
 
-		authorized.GET("/grades", func(c *gin.Context) { handlers.GetGrades(c, database) })
-		authorized.POST("/grades", func(c *gin.Context) { handlers.AddGrade(c, database) })
-		authorized.DELETE("/grades/:id", func(c *gin.Context) { handlers.DeleteGrade(c, database) })
+		authorized.GET("/grades", func(c *gin.Context) { handlers2.GetGrades(c, database) })
+		authorized.POST("/grades", func(c *gin.Context) { handlers2.AddGrade(c, database) })
+		authorized.DELETE("/grades/:id", func(c *gin.Context) { handlers2.DeleteGrade(c, database) })
 	}
 
 	r.Run(":8080")
