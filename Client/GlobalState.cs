@@ -7,7 +7,6 @@ namespace Client
         public static User CurrentUser { get; set; }
         public static string Token { get; set; }
 
-        // метод для "очистки" при логауте
         public static void Clear()
         {
             CurrentUser = null;
