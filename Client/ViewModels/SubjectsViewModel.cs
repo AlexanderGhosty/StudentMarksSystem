@@ -7,17 +7,30 @@ using System.Windows;
 
 namespace Client.ViewModels
 {
+    /// <summary>
+    /// ViewModel для работы с предметами и оценками.
+    /// Обеспечивает управление списком предметов, их созданием/удалением,
+    /// а также просмотр и управление оценками по предметам.
+    /// </summary>
     public class SubjectsViewModel : BaseViewModel
     {
         private readonly IApiService _apiService;
 
         #region Свойства и коллекции
 
-        // Список предметов
+        /// <summary>
+        /// Коллекция всех доступных предметов. 
+        /// Для учителей и администраторов показывает все предметы.
+        /// Для студентов — только предметы, по которым у них есть оценки.
+        /// </summary>
         public ObservableCollection<Subject> Subjects { get; set; }
             = new ObservableCollection<Subject>();
 
         private Subject _selectedSubject;
+        /// <summary>
+        /// Выбранный в данный момент предмет.
+        /// При изменении автоматически загружает оценки по этому предмету.
+        /// </summary>
         public Subject SelectedSubject
         {
             get => _selectedSubject;
@@ -29,7 +42,7 @@ namespace Client.ViewModels
                 // Дергаем CanExecuteChanged, чтобы кнопки, завязанные на SelectedSubject, обновились
                 if (DeleteSubjectCommand is RelayCommand delSubCmd)
                     delSubCmd.RaiseCanExecuteChanged();
-                
+
                 if (RenameSubjectCommand is RelayCommand renSubCmd)
                     renSubCmd.RaiseCanExecuteChanged();
 
@@ -47,11 +60,18 @@ namespace Client.ViewModels
             }
         }
 
-        // Список оценок для выбранного предмета (teacher/admin) или всех оценок студента (если student).
+        /// <summary>
+        /// Коллекция оценок для выбранного предмета.
+        /// Для преподавателей и администраторов отображает все оценки по предмету.
+        /// Для студентов показывает только их собственные оценки по выбранному предмету.
+        /// </summary>
         public ObservableCollection<Grade> Grades { get; set; }
             = new ObservableCollection<Grade>();
 
         private Grade _selectedGrade;
+        /// <summary>
+        /// Выбранная оценка в списке. Используется для операций с оценками.
+        /// </summary>
         public Grade SelectedGrade
         {
             get => _selectedGrade;
@@ -69,34 +89,70 @@ namespace Client.ViewModels
         #endregion
 
         #region Роли
-        // Если роль "admin" -> администратор
+        /// <summary>
+        /// Указывает, является ли текущий пользователь администратором.
+        /// </summary>
         public bool IsAdmin => GlobalState.CurrentUser?.Role == "admin";
 
-        // Если роль "teacher" -> преподаватель
+        /// <summary>
+        /// Указывает, является ли текущий пользователь преподавателем.
+        /// </summary>
         public bool IsTeacher => GlobalState.CurrentUser?.Role == "teacher";
 
-        // Admin или Teacher
+        /// <summary>
+        /// Указывает, является ли текущий пользователь преподавателем или администратором.
+        /// </summary>
         public bool IsTeacherOrAdmin => IsTeacher || IsAdmin;
 
-        // Студент
+        /// <summary>
+        /// Указывает, является ли текущий пользователь студентом.
+        /// </summary>
         public bool IsStudent => GlobalState.CurrentUser?.Role == "student";
         #endregion
 
         #region Команды
 
-        // Предметы
+        /// <summary>
+        /// Команда для загрузки списка предметов.
+        /// </summary>
         public ICommand LoadSubjectsCommand { get; }
+
+        /// <summary>
+        /// Команда для добавления нового предмета (доступна только администратору).
+        /// </summary>
         public ICommand AddSubjectCommand { get; }
+
+        /// <summary>
+        /// Команда для удаления выбранного предмета (доступна только администратору).
+        /// </summary>
         public ICommand DeleteSubjectCommand { get; }
+
+        /// <summary>
+        /// Команда для переименования выбранного предмета (доступна только администратору).
+        /// </summary>
         public ICommand RenameSubjectCommand { get; }
 
-        // Оценки
+        /// <summary>
+        /// Команда для загрузки оценок по выбранному предмету.
+        /// </summary>
         public ICommand LoadGradesCommand { get; }
+
+        /// <summary>
+        /// Команда для добавления или изменения оценки (доступна преподавателям и администраторам).
+        /// </summary>
         public ICommand AddOrUpdateGradeCommand { get; }
+
+        /// <summary>
+        /// Команда для удаления выбранной оценки (доступна преподавателям и администраторам).
+        /// </summary>
         public ICommand DeleteGradeCommand { get; }
 
         #endregion
 
+        /// <summary>
+        /// Инициализирует новый экземпляр класса <see cref="SubjectsViewModel"/>.
+        /// </summary>
+        /// <param name="apiService">Сервис для взаимодействия с API.</param>
         public SubjectsViewModel(IApiService apiService)
         {
             _apiService = apiService;
@@ -125,6 +181,11 @@ namespace Client.ViewModels
 
         #region Методы для работы с предметами
 
+        /// <summary>
+        /// Загружает список предметов в зависимости от роли пользователя.
+        /// Для студентов загружаются только предметы, по которым у них есть оценки.
+        /// Для преподавателей и администраторов загружаются все предметы.
+        /// </summary>
         private async System.Threading.Tasks.Task LoadSubjectsAsync()
         {
             Subjects.Clear();
@@ -177,6 +238,10 @@ namespace Client.ViewModels
             }
         }
 
+        /// <summary>
+        /// Открывает диалоговое окно для создания нового предмета 
+        /// и отправляет запрос на его добавление в систему.
+        /// </summary>
         private async System.Threading.Tasks.Task AddSubjectAsync()
         {
             // Открываем диалог (у вас уже есть логика AddSubjectDialogView + AddSubjectDialogViewModel)
@@ -206,6 +271,9 @@ namespace Client.ViewModels
             }
         }
 
+        /// <summary>
+        /// Удаляет выбранный предмет после подтверждения пользователем.
+        /// </summary>
         private async System.Threading.Tasks.Task DeleteSubjectAsync()
         {
             if (SelectedSubject == null) return;
@@ -230,6 +298,10 @@ namespace Client.ViewModels
             }
         }
 
+        /// <summary>
+        /// Открывает диалоговое окно для переименования выбранного предмета 
+        /// и отправляет запрос на обновление его названия.
+        /// </summary>
         private async Task RenameSubjectAsync()
         {
             if (SelectedSubject == null) return;
@@ -270,7 +342,9 @@ namespace Client.ViewModels
         #region Методы для работы с оценками
 
         /// <summary>
-        /// Загрузить оценки по выбранному предмету 
+        /// Загружает оценки по выбранному предмету. 
+        /// Для преподавателей и администраторов загружает все оценки по предмету.
+        /// Для студентов загружает только их собственные оценки по выбранному предмету.
         /// </summary>
         private async System.Threading.Tasks.Task LoadGradesAsync()
         {
@@ -317,7 +391,7 @@ namespace Client.ViewModels
 
 
         /// <summary>
-        /// Загрузить все оценки текущего студента (без привязки к предмету).
+        /// Загружает все оценки текущего студента (без привязки к конкретному предмету).
         /// </summary>
         private async System.Threading.Tasks.Task LoadStudentGradesAsync()
         {
@@ -335,15 +409,14 @@ namespace Client.ViewModels
         }
 
         /// <summary>
-        /// Добавление или изменение оценки (teacher/admin).
-        /// В примере – показываем упрощённый диалог ввода ID студента и значение оценки.
-        /// Можно оформить отдельным View + VM, как с предметами.
+        /// Открывает диалоговое окно для добавления или изменения оценки.
+        /// Доступно только для преподавателей и администраторов.
         /// </summary>
         private async System.Threading.Tasks.Task AddOrUpdateGradeAsync()
         {
             if (SelectedSubject == null)
                 return;
-            
+
             // Открываем диалоговое окно
             var gradeDialog = new GradeDialog(_apiService);
 
@@ -384,7 +457,10 @@ namespace Client.ViewModels
             }
         }
 
-
+        /// <summary>
+        /// Удаляет выбранную оценку после подтверждения пользователем.
+        /// Доступно только для преподавателей и администраторов.
+        /// </summary>
         private async System.Threading.Tasks.Task DeleteGradeAsync()
         {
             if (SelectedGrade == null) return;

@@ -1,54 +1,67 @@
 ﻿using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Client;
 using Client.Models;
 using Client.Services;
 
 namespace Client.ViewModels
 {
+    /// <summary>
+    /// ViewModel for the dialog that allows adding grades to students.
+    /// Handles search functionality and grade selection.
+    /// </summary>
     public class AddGradeDialogViewModel : BaseViewModel
     {
         private readonly IApiService _apiService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AddGradeDialogViewModel"/> class.
+        /// </summary>
+        /// <param name="apiService">Service for making API requests to the server.</param>
         public AddGradeDialogViewModel(IApiService apiService)
         {
-            // Экземпляр ApiService для запросов на сервер
             _apiService = apiService;
 
-            // Коллекция результатов поиска
             Users = new ObservableCollection<User>();
 
-            // Команда поиска
             SearchCommand = new RelayCommand(async _ => await SearchUsersAsync());
 
             // По умолчанию «5»
             SelectedGrade = "5";
         }
 
-        // Текст, который вводит пользователь для поиска по имени
         private string _searchText;
+        /// <summary>
+        /// Gets or sets the search text entered by the user to filter students by name.
+        /// </summary>
         public string SearchText
         {
             get => _searchText;
             set { _searchText = value; OnPropertyChanged(); }
         }
 
-        // Результат поиска — список пользователей (студентов)
+        /// <summary>
+        /// Gets the collection of users (students) that match the search criteria.
+        /// </summary>
         public ObservableCollection<User> Users { get; set; }
 
-        // Текущий выбранный студент
         private User _selectedUser;
+        /// <summary>
+        /// Gets or sets the currently selected student from the search results.
+        /// </summary>
         public User SelectedUser
         {
             get => _selectedUser;
             set { _selectedUser = value; OnPropertyChanged(); }
         }
 
-        // Список оценок в ComboBox = "1", "2", "3", "4", "5"
+        // ComboBox = "1", "2", "3", "4", "5"
         private object _selectedGrade;
+        /// <summary>
+        /// Gets or sets the currently selected grade.
+        /// ComboBox options are "1", "2", "3", "4", "5".
+        /// Default value is "5".
+        /// </summary>
         public string SelectedGrade
         {
             get => _selectedGrade?.ToString();
@@ -66,10 +79,18 @@ namespace Client.ViewModels
             }
         }
 
-        // Команда, вызываемая при нажатии кнопки "Найти"
+        /// <summary>
+        /// Command that is executed when the search button is clicked.
+        /// Triggers the student search based on the entered search text.
+        /// </summary>
         public ICommand SearchCommand { get; }
 
-        // Логика поиска пользователей (только студенты)
+        /// <summary>
+        /// Asynchronously searches for users with the "student" role whose names
+        /// match the search criteria entered by the user.
+        /// Populates the Users collection with matching results.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
         private async Task SearchUsersAsync()
         {
             var result = await _apiService.GetAllUsersAsync();

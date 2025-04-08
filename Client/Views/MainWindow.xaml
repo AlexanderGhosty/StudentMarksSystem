@@ -4,9 +4,28 @@
         xmlns:local="clr-namespace:Client.Views"
         xmlns:vm="clr-namespace:Client.ViewModels"
         xmlns:views="clr-namespace:Client.Views"
-        Title="Система учета обучающихся" Height="450" Width="800">
+        Title="Система учета обучающихся" Height="750" Width="900">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+
+        <!-- Определение кистей для оформления -->
+        <SolidColorBrush x:Key="MenuBackgroundBrush" Color="#F4F4F4"/>
+        <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#007ACC"/>
+        <SolidColorBrush x:Key="ButtonForegroundBrush" Color="White"/>
+        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="WhiteSmoke"/>
+
+        <!-- Глобальный стиль для всех кнопок -->
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Background" Value="{StaticResource ButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ButtonForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+
         <DataTemplate DataType="{x:Type vm:AdminPanelViewModel}">
             <views:AdminPanelView />
         </DataTemplate>
@@ -16,37 +35,36 @@
         <DataTemplate DataType="{x:Type vm:HomeViewModel}">
             <views:HomeView />
         </DataTemplate>
-
     </Window.Resources>
+
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
 
-    <Grid>
+    <!-- Фоновый цвет окна и отступы для всей области -->
+    <Grid Background="{StaticResource WindowBackgroundBrush}" Margin="10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <!-- Вертикальное меню -->
-        <StackPanel Grid.Column="0" Background="#EEE" VerticalAlignment="Top" Margin="5">
+        <StackPanel Grid.Column="0" Background="{StaticResource MenuBackgroundBrush}" 
+                    VerticalAlignment="Top" Margin="5" Orientation="Vertical">
             <Button Content="Панель админа"
-                    Margin="5"
                     Command="{Binding OpenAdminPanelCommand}"
-                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}" />
-
-            <Button Content="Домой" Margin="5"
+                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <Button Content="Домой"
                     Command="{Binding OpenHomeCommand}"/>
-            <Button Content="Предметы" Margin="5"
+            <Button Content="Предметы"
                     Command="{Binding OpenSubjectsCommand}"/>
-
-            <Button Content="Выход" Margin="5"
+            <Button Content="Выход"
                     Command="{Binding LogoutCommand}" />
         </StackPanel>
 
-        <!-- Область контента -->
-        <ContentControl Grid.Column="1" Margin="5"
-                        Content="{Binding CurrentViewModel}">
-        </ContentControl>
+        <!-- Область контента с рамкой, закругленными углами и внутренними отступами -->
+        <Border Grid.Column="1" Background="White" Margin="5" Padding="10" CornerRadius="5">
+            <ContentControl Content="{Binding CurrentViewModel}"/>
+        </Border>
     </Grid>
 </Window>

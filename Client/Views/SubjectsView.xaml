@@ -7,85 +7,153 @@
     <UserControl.Resources>
         <!-- Используем встроенный BooleanToVisibilityConverter -->
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+
+        <!-- Ресурсы для оформления "карточного" стиля -->
+        <SolidColorBrush x:Key="CardBackgroundBrush" Color="White"/>
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#CCCCCC"/>
+
+        <!-- Глобальный стиль для кнопок -->
+        <Style TargetType="Button" x:Key="CardButtonStyle">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <!-- Современный стиль для DataGrid -->
+        <Style TargetType="DataGrid" x:Key="ModernDataGridStyle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#F5F5F5"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="ColumnHeaderStyle">
+                <Setter.Value>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#007ACC"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Height" Value="30"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="RowStyle">
+                <Setter.Value>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Foreground" Value="Black"/>
+                        <Setter Property="FontSize" Value="14"/>
+                        <Setter Property="Margin" Value="0,1,0,1"/>
+                        <Style.Triggers>
+                            <!-- Эффект наведения -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E0F7FA"/>
+                            </Trigger>
+                            <!-- Выделенная строка -->
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#B3E5FC"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <!-- кнопка "Обновить список" -->
-            <RowDefinition Height="*"   />
-            <!-- таблица предметов -->
-            <RowDefinition Height="Auto"/>
-            <!-- кнопки Добавить/Удалить предмет -->
-            <RowDefinition Height="*"   />
-            <!-- таблица оценок -->
-            <RowDefinition Height="Auto"/>
-            <!-- кнопки по оценкам -->
-        </Grid.RowDefinitions>
+    <!-- Обёртка содержимого в элемент Border для создания эффекта карточки -->
+    <Border Background="{StaticResource CardBackgroundBrush}"
+            BorderBrush="{StaticResource CardBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="5"
+            Padding="20"
+            Margin="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <!-- Кнопка "Обновить список предметов" -->
+                <RowDefinition Height="Auto"/>
+                <!-- Таблица предметов -->
+                <RowDefinition Height="*"/>
+                <!-- Кнопки добавления/удаления предметов (видны только админу) -->
+                <RowDefinition Height="Auto"/>
+                <!-- Таблица оценок -->
+                <RowDefinition Height="*"/>
+                <!-- Кнопки управления оценками (видны только для teacher/admin) -->
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- Кнопка перезагрузить (предметы) -->
-        <Button Grid.Row="0" Content="Обновить список предметов"
-                Command="{Binding LoadSubjectsCommand}"
-                HorizontalAlignment="Left" 
-                Margin="0,0,0,10"/>
+            <!-- Кнопка перезагрузить список предметов -->
+            <Button Grid.Row="0" Content="Обновить список предметов"
+                    Command="{Binding LoadSubjectsCommand}"
+                    HorizontalAlignment="Left" Margin="0,0,0,10"
+                    Style="{StaticResource CardButtonStyle}"/>
 
-        <!-- Список предметов -->
-        <DataGrid Grid.Row="1"
-                  ItemsSource="{Binding Subjects}"
-                  SelectedItem="{Binding SelectedSubject}"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  Margin="0,0,0,10">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60" />
-                <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="*" />
-            </DataGrid.Columns>
-        </DataGrid>
+            <!-- Список предметов с современным оформлением -->
+            <DataGrid Grid.Row="1"
+                      ItemsSource="{Binding Subjects}"
+                      SelectedItem="{Binding SelectedSubject}"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      Margin="0,0,0,10"
+                      Style="{StaticResource ModernDataGridStyle}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60" />
+                    <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
 
-        <!-- Кнопки добавления/удаления предметов (видны только админу) -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal"
-                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Button Content="Добавить предмет" 
-                    Command="{Binding AddSubjectCommand}"
-                    Margin="0,0,10,0" />
-            <Button Content="Переименовать" 
-                    Command="{Binding RenameSubjectCommand}"
-                    Margin="0,0,10,0"/>
-            <Button Content="Удалить выбранный предмет" 
-                    Command="{Binding DeleteSubjectCommand}" />
-        </StackPanel>
+            <!-- Кнопки добавления/удаления предметов (видны только админу) -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal"
+                        Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Margin="0,0,0,10">
+                <Button Content="Добавить предмет" 
+                        Command="{Binding AddSubjectCommand}"
+                        Style="{StaticResource CardButtonStyle}"/>
+                <Button Content="Переименовать" 
+                        Command="{Binding RenameSubjectCommand}"
+                        Style="{StaticResource CardButtonStyle}"/>
+                <Button Content="Удалить выбранный предмет" 
+                        Command="{Binding DeleteSubjectCommand}"
+                        Style="{StaticResource CardButtonStyle}"/>
+            </StackPanel>
 
-        <!-- Таблица оценок (Grades). 
-             Видна всем ролям, чтобы студент мог видеть свои, а teacher/admin – оценки по выбранному предмету. 
-             Но кнопки управления оценками ниже будут скрыты, если это не teacher/admin. -->
-        <DataGrid Grid.Row="3"
-                  ItemsSource="{Binding Grades}"
-                  SelectedItem="{Binding SelectedGrade}"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  Margin="0,0,0,10">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Grade ID" Binding="{Binding Id}" Width="60"  
-                                    Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                <DataGridTextColumn Header="Student ID" Binding="{Binding StudentId}" Width="80"  
-                                    Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                <DataGridTextColumn Header="Имя студента" Binding="{Binding StudentName}" />
-                <DataGridTextColumn Header="Оценка"      Binding="{Binding GradeValue}" Width="*" />
-            </DataGrid.Columns>
-        </DataGrid>
+            <!-- Таблица оценок (Grades) с современным оформлением -->
+            <DataGrid Grid.Row="3"
+                      ItemsSource="{Binding Grades}"
+                      SelectedItem="{Binding SelectedGrade}"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      Margin="0,0,0,10"
+                      Style="{StaticResource ModernDataGridStyle}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Grade ID" Binding="{Binding Id}" Width="60"  
+                                        Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <DataGridTextColumn Header="Student ID" Binding="{Binding StudentId}" Width="80"  
+                                        Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <DataGridTextColumn Header="Имя студента" Binding="{Binding StudentName}" />
+                    <DataGridTextColumn Header="Оценка"      Binding="{Binding GradeValue}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
 
-        <!-- Кнопки добавления/изменения/удаления оценок 
-             (видны только для преподавателя или админа) -->
-        <StackPanel Grid.Row="4" Orientation="Horizontal"
-                    Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Button Content="Добавить оценку"
-                    Command="{Binding AddOrUpdateGradeCommand}"
-                    Margin="0,0,10,0" />
-            <Button Content="Удалить оценку"
-                    Command="{Binding DeleteGradeCommand}" />
-        </StackPanel>
-
-    </Grid>
+            <!-- Кнопки управления оценками (видны только для teacher/admin) -->
+            <StackPanel Grid.Row="4" Orientation="Horizontal"
+                        Visibility="{Binding IsTeacherOrAdmin, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Button Content="Добавить оценку"
+                        Command="{Binding AddOrUpdateGradeCommand}"
+                        Style="{StaticResource CardButtonStyle}"/>
+                <Button Content="Удалить оценку"
+                        Command="{Binding DeleteGradeCommand}"
+                        Style="{StaticResource CardButtonStyle}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
 </UserControl>

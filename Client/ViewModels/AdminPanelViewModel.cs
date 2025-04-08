@@ -8,12 +8,21 @@ using System.Windows;
 
 namespace Client.ViewModels
 {
+    /// <summary>
+    /// ViewModel for the admin panel that provides functionality to manage users
+    /// </summary>
     public class AdminPanelViewModel : BaseViewModel
     {
+        /// <summary>
+        /// Collection of all users in the system
+        /// </summary>
         public ObservableCollection<User> Users { get; set; }
             = new ObservableCollection<User>();
 
         private User _selectedUser;
+        /// <summary>
+        /// Gets or sets the currently selected user in the admin panel
+        /// </summary>
         public User SelectedUser
         {
             get => _selectedUser;
@@ -25,29 +34,52 @@ namespace Client.ViewModels
         }
 
 
-        // Команды
+        // Commands
+        /// <summary>
+        /// Command to load all users from the server
+        /// </summary>
         public ICommand LoadUsersCommand { get; }
+
+        /// <summary>
+        /// Command to refresh the users list from the server
+        /// </summary>
         public ICommand RefreshUsersCommand { get; }
+
+        /// <summary>
+        /// Command to add a new user to the system
+        /// </summary>
         public ICommand AddUserCommand { get; }
+
+        /// <summary>
+        /// Command to delete the selected user from the system
+        /// </summary>
         public ICommand DeleteUserCommand { get; }
 
         private readonly IApiService _apiService;
 
+        /// <summary>
+        /// Initializes a new instance of the AdminPanelViewModel class
+        /// </summary>
+        /// <param name="apiService">Service for API interactions</param>
         public AdminPanelViewModel(IApiService apiService)
         {
             _apiService = apiService;
 
             LoadUsersCommand = new RelayCommand(async _ => await LoadUsersAsync());
-            // "Обновить" будет повторно вызывать тот же метод
+            // "Refresh" will call the same method again
             RefreshUsersCommand = new RelayCommand(async _ => await LoadUsersAsync());
 
             AddUserCommand = new RelayCommand(async _ => await AddUserAsync());
             DeleteUserCommand = new RelayCommand(async _ => await DeleteUserAsync());
 
-            // Загрузим пользователей при инициализации
+            // Load users on initialization
             LoadUsersCommand.Execute(null);
         }
 
+        /// <summary>
+        /// Loads all users from the server
+        /// </summary>
+        /// <returns>Task representing the asynchronous operation</returns>
         private async System.Threading.Tasks.Task LoadUsersAsync()
         {
             Users.Clear();
@@ -59,11 +91,15 @@ namespace Client.ViewModels
             }
         }
 
+        /// <summary>
+        /// Opens a dialog to add a new user and sends the data to the server
+        /// </summary>
+        /// <returns>Task representing the asynchronous operation</returns>
         private async Task AddUserAsync()
         {
             try
             {
-                // Открываем диалоговое окно добавления
+                // Open add user dialog
                 var dialog = new AddUserDialog();
                 var dialogVm = new AddUserDialogViewModel();
                 dialog.DataContext = dialogVm;
@@ -81,7 +117,7 @@ namespace Client.ViewModels
                         Role = dialogVm.SelectedRole
                     };
 
-                    // Отправляем POST /users
+                    // Send POST /users
                     var createResult = await _apiService.CreateUserAsync(newUser);
                     if (createResult.IsSuccess && createResult.CreatedUser != null)
                     {
@@ -94,11 +130,14 @@ namespace Client.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при добавлении пользователя: " + ex.Message);
+                MessageBox.Show("Error adding user: " + ex.Message);
             }
         }
 
-
+        /// <summary>
+        /// Deletes the currently selected user from the system
+        /// </summary>
+        /// <returns>Task representing the asynchronous operation</returns>
         private async System.Threading.Tasks.Task DeleteUserAsync()
         {
             if (SelectedUser == null) return;

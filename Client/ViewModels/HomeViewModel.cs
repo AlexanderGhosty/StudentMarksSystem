@@ -2,11 +2,17 @@
 
 namespace Client.ViewModels
 {
+    /// <summary>
+    /// ViewModel for the home page that displays current user information
+    /// </summary>
     public class HomeViewModel : BaseViewModel
     {
         private readonly IApiService _apiService;
 
         private string _name;
+        /// <summary>
+        /// Gets or sets the name of the current user
+        /// </summary>
         public string Name
         {
             get => _name;
@@ -14,6 +20,9 @@ namespace Client.ViewModels
         }
 
         private string _login;
+        /// <summary>
+        /// Gets or sets the login (username) of the current user
+        /// </summary>
         public string Login
         {
             get => _login;
@@ -21,6 +30,9 @@ namespace Client.ViewModels
         }
 
         private int _id;
+        /// <summary>
+        /// Gets or sets the ID of the current user
+        /// </summary>
         public int Id
         {
             get => _id;
@@ -28,13 +40,20 @@ namespace Client.ViewModels
         }
 
         private string _role;
+        /// <summary>
+        /// Gets or sets the role of the current user
+        /// </summary>
         public string Role
         {
             get => _role;
             set { _role = value; OnPropertyChanged(); }
         }
 
-        // Конструктор
+        // Constructor
+        /// <summary>
+        /// Initializes a new instance of the HomeViewModel class with the specified API service
+        /// </summary>
+        /// <param name="apiService">Service for API interactions</param>
         public HomeViewModel(IApiService apiService)
         {
             _apiService = apiService;
@@ -47,6 +66,10 @@ namespace Client.ViewModels
                 Role = GlobalState.CurrentUser.Role;
             }
         }
+
+        /// <summary>
+        /// Initializes a new instance of the HomeViewModel class with a default API service
+        /// </summary>
         public HomeViewModel() : this(new ApiService())
         {
         }
