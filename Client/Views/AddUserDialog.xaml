@@ -4,56 +4,113 @@
         xmlns:vm="clr-namespace:Client.ViewModels"
         Title="Добавить пользователя"
         WindowStartupLocation="CenterOwner"
-        Height="320" Width="400">
+        Height="350" Width="400">
+    <Window.Resources>
+        <!-- Ресурсы для карточного стиля -->
+        <SolidColorBrush x:Key="CardBackgroundBrush" Color="White" />
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#CCCCCC" />
 
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <!-- Стиль для кнопок диалога -->
+        <Style TargetType="Button" x:Key="DialogButtonStyle">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Background" Value="#007ACC" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
 
-        <!-- Поле "Имя" -->
-        <TextBlock Text="Имя:" VerticalAlignment="Center"/>
-        <TextBox Grid.Row="0" Margin="60,0,0,0" Width="200" 
+        <!-- Базовый стиль для TextBox -->
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="BorderBrush" Value="#CCCCCC" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <!-- Базовый стиль для подписей -->
+        <Style TargetType="TextBlock">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+    </Window.Resources>
+
+    <!-- Фоновый Grid для создания эффекта пространства -->
+    <Grid Background="WhiteSmoke" Margin="10">
+        <!-- Оборачивание содержимого в Border для карточного стиля -->
+        <Border Background="{StaticResource CardBackgroundBrush}"
+            BorderBrush="{StaticResource CardBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="5"
+            Padding="20"
+            Margin="10">
+            <!-- Основной макет с использованием Grid с 2 столбцами -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Имя -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Логин -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Пароль -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Роль -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- ErrorMessage -->
+                    <RowDefinition Height="*"/>
+                    <!-- Spacer -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Кнопки -->
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Поле "Имя" -->
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Имя:" />
+                <TextBox Grid.Row="0" Grid.Column="1" Width="200"
                  Text="{Binding UserName}" />
 
-        <!-- Поле "Логин" -->
-        <TextBlock Grid.Row="1" Text="Логин:" VerticalAlignment="Center"/>
-        <TextBox Grid.Row="1" Margin="60,0,0,0" Width="200"
+                <!-- Поле "Логин" -->
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Логин:" />
+                <TextBox Grid.Row="1" Grid.Column="1" Width="200"
                  Text="{Binding Login}" />
 
-        <!-- Поле "Пароль" -->
-        <TextBlock Grid.Row="2" Text="Пароль:" VerticalAlignment="Center"/>
-        <TextBox Grid.Row="2" Margin="60,0,0,0" Width="200"
+                <!-- Поле "Пароль" -->
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Пароль:" />
+                <TextBox Grid.Row="2" Grid.Column="1" Width="200"
                  Text="{Binding PasswordHash}" />
 
-        <!-- Поле "Роль" -->
-        <TextBlock Grid.Row="3" Text="Роль:" VerticalAlignment="Center"/>
-        <ComboBox Grid.Row="3" Margin="60,0,0,0" Width="200" 
-                  SelectedValuePath="Content" SelectedValue="{Binding SelectedRole, Mode=TwoWay}">
-            <ComboBoxItem Content="admin"/>
-            <ComboBoxItem Content="teacher"/>
-            <ComboBoxItem Content="student"/>
-        </ComboBox>
+                <!-- Поле "Роль" -->
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Роль:" />
+                <ComboBox Grid.Row="3" Grid.Column="1" Width="200" Margin="5"
+                  SelectedValuePath="Content"
+                  SelectedValue="{Binding SelectedRole, Mode=TwoWay}">
+                    <ComboBoxItem Content="admin"/>
+                    <ComboBoxItem Content="teacher"/>
+                    <ComboBoxItem Content="student"/>
+                </ComboBox>
 
-        <!-- Выводим ErrorMessage, если есть -->
-        <TextBlock Grid.Row="4" 
+                <!-- Вывод сообщения об ошибке, если есть -->
+                <TextBlock Grid.Row="4" Grid.ColumnSpan="2"
                    Text="{Binding ErrorMessage}"
                    Foreground="Red"
                    TextWrapping="Wrap" />
 
-        <!-- Кнопки "Сохранить" и "Отмена" -->
-        <StackPanel Grid.Row="5" Orientation="Horizontal" 
-                    HorizontalAlignment="Right" VerticalAlignment="Center">
-            <Button Content="Сохранить"
-                    Command="{Binding SaveCommand}"
-                    Margin="0,0,5,0"/>
-            <Button Content="Отмена"
-                    Command="{Binding CancelCommand}"/>
-        </StackPanel>
+                <!-- Кнопки "Сохранить" и "Отмена" -->
+                <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+                    <Button Content="Сохранить"
+                  Command="{Binding SaveCommand}"
+                  Style="{StaticResource DialogButtonStyle}" />
+                    <Button Content="Отмена"
+                  Command="{Binding CancelCommand}"
+                  Style="{StaticResource DialogButtonStyle}" />
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Window>
