@@ -59,8 +59,7 @@ func UpdateSubject(c *gin.Context, database *sql.DB) {
 	}
 
 	var data struct {
-		Title     string `json:"title"`
-		TeacherID *int   `json:"teacher_id"` // может быть null
+		Title string `json:"title"`
 	}
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request data"})
@@ -68,9 +67,8 @@ func UpdateSubject(c *gin.Context, database *sql.DB) {
 	}
 
 	subj := models.Subject{
-		ID:        subjectId,
-		Title:     data.Title,
-		TeacherID: data.TeacherID,
+		ID:    subjectId,
+		Title: data.Title,
 	}
 
 	if err := db.UpdateSubject(database, subj); err != nil {

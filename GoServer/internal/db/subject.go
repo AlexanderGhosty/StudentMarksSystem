@@ -8,7 +8,7 @@ import (
 // GetSubjects retrieves all subjects from the database and returns them as a slice of models.Subject.
 // It takes a database connection object as a parameter and returns any error encountered during execution.
 func GetSubjects(db *sql.DB) ([]models.Subject, error) {
-	rows, err := db.Query(`SELECT id, title, teacher_id FROM Subjects`)
+	rows, err := db.Query(`SELECT id, title FROM Subjects`)
 	if err != nil {
 		return nil, err
 	}
@@ -17,7 +17,7 @@ func GetSubjects(db *sql.DB) ([]models.Subject, error) {
 	var subjects []models.Subject
 	for rows.Next() {
 		var s models.Subject
-		if err := rows.Scan(&s.ID, &s.Title, &s.TeacherID); err != nil {
+		if err := rows.Scan(&s.ID, &s.Title); err != nil {
 			return nil, err
 		}
 		subjects = append(subjects, s)
@@ -28,9 +28,9 @@ func GetSubjects(db *sql.DB) ([]models.Subject, error) {
 // CreateSubject inserts a new subject into the database and returns the newly created subject ID or an error if any occurs.
 func CreateSubject(db *sql.DB, subj models.Subject) (int, error) {
 	var newId int
-	err := db.QueryRow(`INSERT INTO Subjects (title, teacher_id)
-                        VALUES($1, $2) RETURNING id`,
-		subj.Title, subj.TeacherID).Scan(&newId)
+	err := db.QueryRow(`INSERT INTO Subjects (title)
+                        VALUES($1) RETURNING id`,
+		subj.Title).Scan(&newId)
 	if err != nil {
 		return 0, err
 	}
@@ -49,8 +49,7 @@ func UpdateSubject(db *sql.DB, subj models.Subject) error {
 	_, err := db.Exec(`
         UPDATE Subjects
            SET title = $1,
-               teacher_id = $2
-         WHERE id = $3
-    `, subj.Title, subj.TeacherID, subj.ID)
+         WHERE id = $2
+    `, subj.Title, subj.ID)
 	return err
 }

@@ -85,16 +85,16 @@ Below is an example of how you can create the schema in PostgreSQL. Adjust data 
 CREATE TABLE IF NOT EXISTS Users (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    login TEXT NOT NULL,
+    login TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL
 );
 
+
 -- Create the Subjects table
 CREATE TABLE IF NOT EXISTS Subjects (
     id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-    teacher_id INT NOT NULL,
+    title TEXT NOT NULL
 );
 
 -- Create the Grades table

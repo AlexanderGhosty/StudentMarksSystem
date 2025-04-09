@@ -126,6 +126,15 @@ namespace Client.ViewModels
                             Users.Add(createResult.CreatedUser);
                         });
                     }
+                    else
+                    {
+                        MessageBox.Show(
+                            createResult.ErrorMessage ?? "Неизвестная ошибка при создании пользователя.",
+                            "Ошибка",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error
+                        );
+                    }
                 }
             }
             catch (Exception ex)
